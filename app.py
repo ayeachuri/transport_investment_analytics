@@ -16,7 +16,7 @@ st.title("Transportation Investment Impact Analysis")
 st.markdown("""
 This dashboard explores correlations among transport and economic indicators across countries.
 
-Presently, the relationships are largely superficial and indicate a need for further examining and transforming of the data. Please consider it just an exercise in dashboarding / visualization.
+Presently, the relationships are largely superficial and indicate a need for further examining and transforming of the data. Consider it an exercise in dashboarding / visualization.
             
 Use the sidebar to select countries and metrics of interest. The dashboard provides four main analyses:
 1. **Investment vs. Emissions**: How transportation investment relates to environmental outcomes
@@ -143,7 +143,7 @@ co2_columns = [col for col in transport_wide.columns if 'CO2' in col and 'pred20
 
 # Create tabs for different analyses
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "Road Network Reliance vs CO2 emissions per person", 
+    "Trust in Governments over Time", 
     "Road Investment and Traffic Safety", 
     "Employment in Transport Sector",
     "GDP Growth vs Transport Investment as \% \of GDP",
@@ -152,182 +152,290 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 
 # Tab 1: Trust in Government vs Rail Network
 with tab1:
-    st.header("Trust in Government vs Rail Network Percentage")
+    st.header("Trust in Government Over Time by Rail Network Investment")
     
-    # Find the rail network percentage column
+    # Find the rail network percentage column for clustering
     rail_network_cols = [col for col in transport_wide.columns 
                         if "Transport infrastructure: Percentage of rail network" in col and "pred2000" in col]
     
-    # Find trust in government column in economic data
-    trust_cols = [col for col in econ_wide.columns 
-                 if "Trust in government" in col and "pred2000" in col]
+    # Find trust in government column in economic semiwide data
+    trust_col = "Trust in government (Total): Percentage"
     
-    if rail_network_cols and trust_cols:
-        # Get the columns (should be just one of each)
+    if rail_network_cols and trust_col in econ_annual.columns:
+        # Get the rail column (should be just one)
         rail_col = rail_network_cols[0]
-        trust_col = trust_cols[0]
         
-        # Create a dataframe with countries that have both metrics
-        combined_data = []
+        # Create a dataframe with rail network percentages for clustering
+        rail_data = transport_wide[rail_col].dropna()
         
-        for country in transport_wide.index:
-            if (country in econ_wide.index and 
-                pd.notna(transport_wide.loc[country, rail_col]) and 
-                pd.notna(econ_wide.loc[country, trust_col])):
-                
-                # Get GDP data if available
-                gdp_col = "Gross domestic product (GDP) (Total): US dollars/capita_pred2000"
-                gdp_value = econ_wide.loc[country, gdp_col] if gdp_col in econ_wide.columns and pd.notna(econ_wide.loc[country, gdp_col]) else np.nan
-                
-                combined_data.append({
-                    'Country': country,
-                    'Rail_Network': transport_wide.loc[country, rail_col],
-                    'Trust': econ_wide.loc[country, trust_col],
-                    'GDP_per_capita': gdp_value
-                })
+        # Create rail network quartiles
+        rail_quartile_data = pd.DataFrame({
+            'Country': rail_data.index,
+            'Rail_Network': rail_data.values
+        })
         
-        if combined_data:
-            plot_df = pd.DataFrame(combined_data)
+        # Create quartiles
+        rail_quartile_data['Rail_Quartile'] = pd.qcut(
+            rail_quartile_data['Rail_Network'], 
+            4, 
+            labels=['Q1 (Lowest Rail %)', 'Q2', 'Q3', 'Q4 (Highest Rail %)']
+        )
+        
+        # Filter economic data to include only trust in government
+        trust_data = econ_annual[['Reference area', 'TIME_PERIOD', trust_col]].copy()
+        trust_data = trust_data.dropna(subset=[trust_col])
+        
+        # Rename columns for clarity
+        trust_data.columns = ['Country', 'Year', 'Trust']
+        
+        # Merge with rail network quartile data
+        trust_data = trust_data.merge(
+            rail_quartile_data[['Country', 'Rail_Network', 'Rail_Quartile']], 
+            on='Country', 
+            how='left'
+        )
+        
+        # Drop rows without rail network data
+        trust_data = trust_data.dropna(subset=['Rail_Quartile'])
+        
+        # Filter to selected countries if any are selected
+        if selected_countries:
+            filtered_trust = trust_data[trust_data['Country'].isin(selected_countries)]
+            if filtered_trust.empty:
+                st.warning("None of the selected countries have both rail network and trust in government data.")
+                # Use all countries with data as a fallback
+                filtered_trust = trust_data
+        else:
+            # Use all countries with data
+            filtered_trust = trust_data
+        
+        # Create tabs for different views
+        trust_tab1, trust_tab2 = st.tabs([
+            "Average Trust by Rail Quartile", 
+            "Individual Country Trends"
+        ])
+        
+        # Tab 1: Average Trust by Rail Quartile
+        with trust_tab1:
+            st.subheader("Trust in Government by Rail Network Investment Level")
             
-            # Create GDP quartiles where GDP data is available
-            valid_gdp = plot_df['GDP_per_capita'].notna()
-            if valid_gdp.sum() >= 4:  # Need at least 4 points for quartiles
-                plot_df.loc[valid_gdp, 'GDP_Quartile'] = pd.qcut(
-                    plot_df.loc[valid_gdp, 'GDP_per_capita'], 
-                    4, 
-                    labels=['Q1 (Lowest GDP)', 'Q2', 'Q3', 'Q4 (Highest GDP)']
-                )
-            else:
-                plot_df['GDP_Quartile'] = 'Unknown'
+            # Calculate average trust by year and rail quartile
+            avg_trust = filtered_trust.groupby(['Year', 'Rail_Quartile'])['Trust'].mean().reset_index()
             
-            # Filter to selected countries if any are selected
-            if selected_countries:
-                selected_df = plot_df[plot_df['Country'].isin(selected_countries)]
-                if selected_df.empty:
-                    st.warning("None of the selected countries have both rail network and trust in government data.")
-                    # Use all countries with data as a fallback
-                    selected_df = plot_df
-            else:
-                # Use all countries with data
-                selected_df = plot_df
-            
-            # Create the scatter plot
+            # Create the line plot
             fig, ax = plt.subplots(figsize=(12, 8))
             
-            # Plot with color by GDP quartile if available and not all unknown
-            if 'GDP_Quartile' in selected_df.columns and selected_df['GDP_Quartile'].nunique() > 1 and 'Unknown' not in selected_df['GDP_Quartile'].unique():
-                # Convert categorical to string before ordering
-                quartiles = selected_df['GDP_Quartile'].astype(str).unique()
-                # Use a fixed order for quartiles
-                quartile_order = ['Q1 (Lowest GDP)', 'Q2', 'Q3', 'Q4 (Highest GDP)']
-                # Only use quartiles that exist in the data
-                ordered_quartiles = [q for q in quartile_order if q in quartiles]
+            # Plot each rail quartile
+            palette = sns.color_palette("viridis", 4)
+            
+            for i, quartile in enumerate(['Q1 (Lowest Rail %)', 'Q2', 'Q3', 'Q4 (Highest Rail %)']):
+                quartile_data = avg_trust[avg_trust['Rail_Quartile'] == quartile]
                 
-                sns.scatterplot(
-                    data=selected_df,
-                    x='Rail_Network',
-                    y='Trust',
-                    hue='GDP_Quartile',
-                    hue_order=ordered_quartiles,
-                    palette='viridis',
-                    s=100,
-                    ax=ax
-                )
-            else:
-                # Plot all countries with the same color if no GDP quartiles
-                sns.scatterplot(
-                    data=selected_df,
-                    x='Rail_Network',
-                    y='Trust',
-                    s=100,
-                    ax=ax
-                )
+                if not quartile_data.empty:
+                    ax.plot(
+                        quartile_data['Year'],
+                        quartile_data['Trust'],
+                        marker='o',
+                        markersize=8,
+                        linewidth=2,
+                        label=quartile,
+                        color=palette[i]
+                    )
             
-            # Add country labels
-            for _, row in selected_df.iterrows():
-                ax.annotate(
-                    row['Country'],
-                    (row['Rail_Network'], row['Trust']),
-                    fontsize=9,
-                    xytext=(5, 5),
-                    textcoords='offset points'
-                )
+            # Add country count to legend
+            quartile_counts = filtered_trust.groupby('Rail_Quartile')['Country'].nunique()
+            handles, labels = ax.get_legend_handles_labels()
+            new_labels = []
             
-            # Add regression line
-            sns.regplot(
-                data=selected_df,
-                x='Rail_Network',
-                y='Trust',
-                scatter=False,
-                ax=ax,
-                color='red',
-                line_kws={'linestyle': '--'}
-            )
+            for label in labels:
+                count = quartile_counts.get(label, 0)
+                new_labels.append(f"{label} ({count} countries)")
             
-            # Calculate correlation
-            correlation = selected_df['Rail_Network'].corr(selected_df['Trust'])
-            
-            # Add correlation text
-            ax.text(
-                0.05, 0.95,
-                f'Correlation: {correlation:.2f}',
-                transform=ax.transAxes,
-                fontsize=10,
-                bbox=dict(facecolor='white', alpha=0.7)
-            )
-            
-            # Clean up the axis labels
-            x_label = rail_col.split('_pred2000')[0]
-            y_label = trust_col.split('_pred2000')[0]
-            
-            ax.set_xlabel(x_label, fontsize=11)
-            ax.set_ylabel(y_label, fontsize=11)
-            ax.set_title(f'Relationship between Rail Network Percentage and Trust in Government', fontsize=14)
-            
-            # Add grid for better readability
+            # Customize the plot
+            ax.set_xlabel('Year', fontsize=12)
+            ax.set_ylabel('Trust in Government (%)', fontsize=12)
+            ax.set_title('Average Trust in Government by Rail Network Percentage', fontsize=14)
             ax.grid(True, alpha=0.3)
+            ax.legend(handles, new_labels, title="Rail Network Quartile", fontsize=10)
+            
+            # Improve x-axis ticks if many years
+            years = sorted(filtered_trust['Year'].unique())
+            if len(years) > 15:
+                # Show fewer ticks if many years
+                ax.set_xticks(years[::3])
+            elif len(years) > 10:
+                ax.set_xticks(years[::2])
+            else:
+                ax.set_xticks(years)
+            
+            plt.tight_layout()
+            st.pyplot(fig)
+            
+            # Calculate overall averages by quartile
+            overall_avg = filtered_trust.groupby('Rail_Quartile')['Trust'].mean().reset_index()
+            
+            # Create a bar chart of overall averages
+            fig, ax = plt.subplots(figsize=(10, 6))
+            
+            # Plot bars
+            bars = ax.bar(
+                overall_avg['Rail_Quartile'],
+                overall_avg['Trust'],
+                color=palette
+            )
+            
+            # Add data labels
+            for bar in bars:
+                height = bar.get_height()
+                ax.annotate(
+                    f'{height:.2f}%',
+                    xy=(bar.get_x() + bar.get_width() / 2, height),
+                    xytext=(0, 3),
+                    textcoords="offset points",
+                    ha='center', va='bottom',
+                    fontsize=10
+                )
+            
+            # Customize the plot
+            ax.set_xlabel('Rail Network Quartile', fontsize=12)
+            ax.set_ylabel('Average Trust in Government (%)', fontsize=12)
+            ax.set_title('Overall Average Trust by Rail Network Investment Level', fontsize=14)
+            ax.grid(True, axis='y', alpha=0.3)
             
             # Show the plot
             st.pyplot(fig)
             
-            # Add explanation
-            st.markdown(f"""
-            **Rail Network Percentage vs Trust in Government**
+            # Add interpretation
+            # Calculate correlation between rail percentage and trust
+            avg_rail_trust = filtered_trust.groupby('Country').agg({
+                'Rail_Network': 'first',
+                'Trust': 'mean'
+            })
+            correlation = avg_rail_trust['Rail_Network'].corr(avg_rail_trust['Trust'])
             
-            This scatter plot examines the relationship between a country's rail network percentage 
-            (as a share of overall transport infrastructure) and the level of trust citizens have in 
-            their government.
+            st.markdown(f"""
+            **Trust in Government by Rail Network Investment Level**
+            
+            This visualization shows how trust in government has evolved over time for countries 
+            with different levels of rail network infrastructure (as a percentage of total transport infrastructure).
             
             **Key findings:**
             
-            - The correlation coefficient between rail network percentage and trust in government is **{correlation:.2f}**
-            - {"Countries with more developed rail networks tend to have higher levels of trust in government." if correlation > 0.3 else ""}
-            - {"Countries with less developed rail networks tend to have higher levels of trust in government." if correlation < -0.3 else ""}
-            - {"There doesn't appear to be a strong relationship between rail infrastructure and government trust." if abs(correlation) <= 0.3 else ""}
+            - The correlation between rail network percentage and average trust in government is **{correlation:.2f}**
+            - {"Countries with higher rail network percentages (Q3 and Q4) tend to have higher levels of trust in government." if correlation > 0.2 else ""}
+            - {"Countries with lower rail network percentages (Q1 and Q2) tend to have higher levels of trust in government." if correlation < -0.2 else ""}
+            - {"There is no clear relationship between rail network percentage and trust in government." if abs(correlation) <= 0.2 else ""}
             
             **Potential interpretations:**
             
-            {"- Investment in public rail infrastructure may signal government commitment to public services" if correlation > 0 else ""}
+            {"- Greater investment in public rail infrastructure may signal government commitment to public services, potentially building trust" if correlation > 0 else ""}
             {"- Efficient public transportation may improve citizens' daily lives and satisfaction with government" if correlation > 0 else ""}
-            {"- The relationship might reflect broader socioeconomic or cultural factors rather than direct causation" if abs(correlation) > 0.3 else ""}
-            {"- Trust in government may be influenced by many factors beyond transportation infrastructure" if abs(correlation) <= 0.3 else ""}
+            {"- The relationship might reflect broader social and political factors rather than direct causation" if abs(correlation) > 0.2 else ""}
+            {"- Trust in government is influenced by many factors beyond transportation infrastructure" if abs(correlation) <= 0.2 else ""}
             
-            Note that correlation does not imply causation - these two metrics may be connected 
-            through other underlying factors or may be coincidental.
+            It's important to note that correlation does not imply causation - these two metrics may be connected 
+            through other underlying factors or their relationship might be coincidental.
             """)
+        
+        # Tab 2: Individual Country Trends
+        with trust_tab2:
+            st.subheader("Individual Country Trust Trends")
             
-            # Show the data in a table
-            with st.expander("Show Data for Selected Countries"):
-                display_data = selected_df[['Country', 'Rail_Network', 'Trust', 'GDP_per_capita']]
-                display_data.columns = ['Country', x_label, y_label, 'GDP per Capita']
-                st.dataframe(display_data)
-        else:
-            st.warning("No countries have both rail network and trust in government data available.")
+            # Get unique countries
+            countries = filtered_trust['Country'].unique()
+            
+            # Allow selection of specific countries for comparison
+            compare_countries = st.multiselect(
+                "Select countries to compare",
+                options=sorted(countries),
+                default=sorted(countries)[:min(5, len(countries))]
+            )
+            
+            if compare_countries:
+                # Filter to selected countries
+                country_trust = filtered_trust[filtered_trust['Country'].isin(compare_countries)]
+                
+                # Create visualization
+                fig, ax = plt.subplots(figsize=(12, 8))
+                
+                # Plot each country
+                for country in compare_countries:
+                    country_data = country_trust[country_trust['Country'] == country]
+                    
+                    if not country_data.empty:
+                        # Get rail quartile for color coding
+                        rail_quartile = country_data['Rail_Quartile'].iloc[0]
+                        quartile_idx = ['Q1 (Lowest Rail %)', 'Q2', 'Q3', 'Q4 (Highest Rail %)'].index(rail_quartile)
+                        
+                        # Plot the country's trust trend
+                        ax.plot(
+                            country_data['Year'],
+                            country_data['Trust'],
+                            marker='o',
+                            linewidth=2,
+                            label=f"{country} ({rail_quartile})",
+                            color=palette[quartile_idx]
+                        )
+                
+                # Customize the plot
+                ax.set_xlabel('Year', fontsize=12)
+                ax.set_ylabel('Trust in Government (%)', fontsize=12)
+                ax.set_title('Trust in Government Trends by Country', fontsize=14)
+                ax.grid(True, alpha=0.3)
+                ax.legend(title="Country (Rail Network Quartile)")
+                
+                # Improve x-axis ticks if many years
+                years = sorted(country_trust['Year'].unique())
+                if len(years) > 15:
+                    # Show fewer ticks if many years
+                    ax.set_xticks(years[::3])
+                elif len(years) > 10:
+                    ax.set_xticks(years[::2])
+                else:
+                    ax.set_xticks(years)
+                
+                plt.tight_layout()
+                st.pyplot(fig)
+                
+                # Show data table with rail network values
+                st.subheader("Rail Network Percentages")
+                
+                rail_values = pd.DataFrame({
+                    'Country': compare_countries,
+                    'Rail Network (% of transport infrastructure)': [
+                        filtered_trust[filtered_trust['Country'] == c]['Rail_Network'].iloc[0]
+                        if not filtered_trust[filtered_trust['Country'] == c].empty else np.nan
+                        for c in compare_countries
+                    ],
+                    'Rail Network Quartile': [
+                        filtered_trust[filtered_trust['Country'] == c]['Rail_Quartile'].iloc[0]
+                        if not filtered_trust[filtered_trust['Country'] == c].empty else 'Unknown'
+                        for c in compare_countries
+                    ]
+                })
+                
+                # Calculate average trust for each country
+                avg_trust_by_country = []
+                for country in compare_countries:
+                    country_data = country_trust[country_trust['Country'] == country]
+                    if not country_data.empty:
+                        avg_trust_by_country.append(country_data['Trust'].mean())
+                    else:
+                        avg_trust_by_country.append(np.nan)
+                
+                rail_values['Average Trust (%)'] = [round(rate, 2) for rate in avg_trust_by_country]
+                
+                # Sort by rail network percentage
+                rail_values = rail_values.sort_values('Rail Network (% of transport infrastructure)', ascending=False)
+                
+                st.dataframe(rail_values)
+            else:
+                st.warning("Please select at least one country to compare.")
     else:
         missing = []
         if not rail_network_cols:
             missing.append("rail network percentage")
-        if not trust_cols:
+        if trust_col not in econ_annual.columns:
             missing.append("trust in government")
             
         st.error(f"Required metrics not found in the data: {', '.join(missing)}")
@@ -483,7 +591,7 @@ with tab2:
         - Points in the lower right quadrant (high investment, low fatalities) represent countries that have effectively invested in road safety
         - Points in the upper left quadrant (low investment, high fatalities) may indicate underinvestment in road safety
         - The correlation coefficient measures the strength of the relationship between road investment and fatality rates
-        - A negative correlation suggests that higher road investment is associated with fewer traffic fatalities
+        - A positive correlation suggests that higher road investment is associated with higher traffic fatalities
         
         Different countries may have different approaches to road safety, including infrastructure design, traffic laws, 
         enforcement, and driver education programs. These factors, combined with investment levels, influence fatality rates.
