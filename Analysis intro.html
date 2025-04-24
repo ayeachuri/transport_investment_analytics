@@ -1,0 +1,225 @@
+<div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 900px; margin: 0 auto; line-height: 1.6; color: white; background-color: #0d1117; padding: 20px; border-radius: 8px;">
+    <h1 style="color: #58a6ff; border-bottom: 3px solid #3498db; padding-bottom: 10px;">Transport Data Preparation for OECD Analysis Dashboard</h1>
+    
+    <div style="background-color: #161b22; padding: 20px; border-left: 5px solid #3498db; margin: 20px 0;">
+        <h2 style="color: #58a6ff; margin-top: 0;">Overview</h2>
+        <p style="color: white; text-align: justify;">
+            This notebook focuses on preparing OECD Transport Performance Indicators data for visualization in a Streamlit dashboard. 
+            The primary purpose is to transform raw transportation metrics from various countries into clean, analysis-ready datasets 
+            that can be easily loaded into interactive visualizations.
+        </p>
+    </div>
+
+    <div style="background-color: #161b22; padding: 20px; border-left: 5px solid #2ecc71; margin: 20px 0;">
+        <h2 style="color: #58a6ff; margin-top: 0;">Data Source</h2>
+        <p style="color: white;">
+            The primary data is from the <a href="https://data-explorer.oecd.org/vis?lc=en&fs[0]=Topic%2C0%7CTransport%23TRA%23&pg=0&fc=Topic&snb=22&df[ds]=dsDisseminateFinalDMZ&df[id]=DSD_INDICATORS%40DF_TRANSPORTINDICATORS&df[ag]=OECD.ITF&df[vs]=1.0&dq=.A.FREIGHT..ROAD...&lom=LASTNPERIODS&lo=5&to[TIME_PERIOD]=false" style="color: #58a6ff; text-decoration: none; border-bottom: 1px dotted #58a6ff;">OECD Data Explorer, Transport Performance Indicators</a>, supplemented with economic indicators for contextual analysis.
+        </p>
+        
+        <div style="background-color: #0d1117; padding: 15px; border-radius: 5px; margin-top: 15px;">
+            <p style="margin: 0; color: white;">The dataset includes more than 90 performance indicators related to transport across 70 countries.</p>
+            <p style="margin: 10px 0 0 0; color: white;">The indicators cover seven themes:</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;">
+                <span style="background-color: #3498db; color: white; padding: 5px 10px; border-radius: 3px;">infrastructure</span>
+                <span style="background-color: #2ecc71; color: white; padding: 5px 10px; border-radius: 3px;">equipment</span>
+                <span style="background-color: #e74c3c; color: white; padding: 5px 10px; border-radius: 3px;">activity</span>
+                <span style="background-color: #f39c12; color: white; padding: 5px 10px; border-radius: 3px;">safety</span>
+                <span style="background-color: #9b59b6; color: white; padding: 5px 10px; border-radius: 3px;">traffic</span>
+                <span style="background-color: #1abc9c; color: white; padding: 5px 10px; border-radius: 3px;">economic and social</span>
+                <span style="background-color: #34495e; color: white; padding: 5px 10px; border-radius: 3px;">environment</span>
+            </div>
+        </div>
+    </div>
+
+    <div style="background-color: #161b22; padding: 20px; border-left: 5px solid #e74c3c; margin: 20px 0;">
+        <h2 style="color: #58a6ff; margin-top: 0;">Data Processing Pipeline</h2>
+        
+        <div style="margin: 20px auto; max-width: 900px;">
+            <table style="width:100%; border-collapse: separate; border-spacing: 5px; color: white; background-color: #0d1117;">
+                <!-- Input Sources -->
+                <tr>
+                    <td style="width:45%; text-align:center; background-color:#3498db; padding:10px; border-radius:5px; color:white; font-weight:bold;">Raw OECD Transport Data</td>
+                    <td style="width:10%;"></td>
+                    <td style="width:45%; text-align:center; background-color:#3498db; padding:10px; border-radius:5px; color:white; font-weight:bold;">Raw OECD Economic Data</td>
+                </tr>
+                
+                <!-- Processing Arrows -->
+                <tr>
+                    <td style="text-align:center; color: white;">&darr;</td>
+                    <td></td>
+                    <td style="text-align:center; color: white;">&darr;</td>
+                </tr>
+                
+                <!-- First Processing Step -->
+                <tr>
+                    <td style="text-align:center; background-color:#2ecc71; padding:10px; border-radius:5px; color: white; font-weight:bold;">Data Cleaning & Standardization</td>
+                    <td></td>
+                    <td style="text-align:center; background-color:#2ecc71; padding:10px; border-radius:5px; color: white; font-weight:bold;">Economic Data Cleaning</td>
+                </tr>
+                
+                <!-- Processing Arrows -->
+                <tr>
+                    <td style="text-align:center; color: white;">&darr;</td>
+                    <td></td>
+                    <td style="text-align:center; color: white;">&darr;</td>
+                </tr>
+                
+                <!-- Second Processing Step -->
+                <tr>
+                    <td style="text-align:center; background-color:#f39c12; padding:10px; border-radius:5px; color: white; font-weight:bold;">Country & Metric Filtering</td>
+                    <td></td>
+                    <td style="text-align:center; background-color:#f39c12; padding:10px; border-radius:5px; color: white; font-weight:bold;">Filter to Match Transport Countries</td>
+                </tr>
+                
+                <!-- Processing Arrows -->
+                <tr>
+                    <td style="text-align:center; color: white;">&darr;</td>
+                    <td></td>
+                    <td style="text-align:center; color: white;">&darr;</td>
+                </tr>
+                
+                <!-- Third Processing Step - Branching -->
+                <tr>
+                    <td style="text-align:center; background-color:#e74c3c; padding:10px; border-radius:5px; color: white; font-weight:bold;">Time Series Regression & Format Transformation</td>
+                    <td></td>
+                    <td style="text-align:center; background-color:#e74c3c; padding:10px; border-radius:5px; color: white; font-weight:bold;">Time Series Regression & Format Transformation</td>
+                </tr>
+                
+                <!-- Processing Arrows with Branching -->
+                <tr>
+                    <td style="text-align:center; color: white;">&swarr; &nbsp; &nbsp; &nbsp; &searr;</td>
+                    <td></td>
+                    <td style="text-align:center; color: white;">&swarr; &nbsp; &nbsp; &nbsp; &searr;</td>
+                </tr>
+                
+                <!-- Fourth Processing Step - Output Files (2 per dataset) -->
+                <tr>
+                    <td style="width:45%;">
+                        <div style="text-align:center; background-color:#9b59b6; padding:8px; border-radius:5px; margin-bottom:10px; color:white; font-weight:bold;">
+                            transport_metrics_agg_wide.csv<br>
+                            <small>(Aggregated format)</small>
+                        </div>
+                        <div style="text-align:center; background-color:#9b59b6; padding:8px; border-radius:5px; color:white; font-weight:bold;">
+                            transport_metrics_semiwide.csv<br>
+                            <small>(Time series format)</small>
+                        </div>
+                    </td>
+                    <td></td>
+                    <td style="width:45%;">
+                        <div style="text-align:center; background-color:#9b59b6; padding:8px; border-radius:5px; margin-bottom:10px; color:white; font-weight:bold;">
+                            econ_metrics_agg_wide.csv<br>
+                            <small>(Aggregated format)</small>
+                        </div>
+                        <div style="text-align:center; background-color:#9b59b6; padding:8px; border-radius:5px; color:white; font-weight:bold;">
+                            econ_metrics_semiwide.csv<br>
+                            <small>(Time series format)</small>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- Processing Arrows Converging -->
+                <tr>
+                    <td style="text-align:center; color: white;">&searr;</td>
+                    <td style="text-align:center; color: white;">&darr;</td>
+                    <td style="text-align:center; color: white;">&swarr;</td>
+                </tr>
+                
+                <!-- Metadata Generation -->
+                <tr>
+                    <td colspan="3" style="text-align:center; background-color:#34495e; padding:10px; border-radius:5px; color:white; font-weight:bold;">
+                        Metadata Generation
+                    </td>
+                </tr>
+                
+                <!-- Final Output Files -->
+                <tr>
+                    <td style="text-align:center; color: white;">&darr;</td>
+                    <td style="text-align:center; color: white;">&darr;</td>
+                    <td style="text-align:center; color: white;">&darr;</td>
+                </tr>
+                
+                <tr>
+                    <td style="text-align:center; background-color:#1abc9c; padding:8px; border-radius:5px; color: white; font-weight:bold;">
+                        combined_measure_metadata.csv<br>
+                        <small>(Measure metadata after time-series aggregation)</small>
+                    </td>
+                    <td style="text-align:center; background-color:#0D1117;">
+                    </td>
+                    <td colspan="2" style="text-align:center; background-color:#1abc9c; padding:8px; border-radius:5px; color: white; font-weight:bold;">
+                        measure_yearly_metadata.csv<br>
+                        <small>(Measure metadata without time-series aggregation)</small>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div style="background-color: #161b22; padding: 20px; border-left: 5px solid #f39c12; margin: 20px 0;">
+        <h2 style="color: #58a6ff; margin-top: 0;">Key Transformation Steps</h2>
+        
+        <ol style="padding-left: 20px; color: white;">
+            <li style="margin-bottom: 10px;"><strong style="color: #ff7b72;">1. Data Cleaning:</strong> Handle missing values, standardize formats, merge related columns</li>
+            <li style="margin-bottom: 10px;"><strong style="color: #ff7b72;">2. Filtering:</strong> Select high-information countries (43 countries with at least 30 metrics each)</li>
+            <li style="margin-bottom: 10px;"><strong style="color: #ff7b72;">3. Time Series Compression:</strong> Represent yearly data with linear regression parameters (predicted 2000 value + slope)</li>
+            <li style="margin-bottom: 10px;"><strong style="color: #ff7b72;">4. Dimension Handling:</strong> Create specialized formats for all analyses (aggregated, wide, and semi-wide)</li>
+            <li style="margin-bottom: 10px;"><strong style="color: #ff7b72;">5. Metadata Creation:</strong> Document measures, units, and categories for dashboard integration</li>
+        </ol>
+    </div>
+
+    <div style="background-color: #161b22; padding: 20px; border-left: 5px solid #9b59b6; margin: 20px 0;">
+        <h2 style="color: #58a6ff; margin-top: 0;">Output Files</h2>
+        
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; margin-top: 15px; background-color: #0d1117;">
+                <thead>
+                    <tr style="background-color: #34495e;">
+                        <th style="padding: 10px; text-align: left; border: 1px solid #30363d; color: white;">Filename</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #30363d; color: white;">Description</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #30363d; color: white;">Dimensions</th>
+                        <th style="padding: 10px; text-align: left; border: 1px solid #30363d; color: white;">Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="background-color: #0d1117;">
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;"><code style="color: #58a6ff;">transport_metrics_agg_wide.csv</code></td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">Aggregated transport metrics in wide format</td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">43 rows × 78 cols</td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">Country clustering, correlation analysis</td>
+                    </tr>
+                    <tr style="background-color: #161b22;">
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;"><code style="color: #58a6ff;">econ_metrics_agg_wide.csv</code></td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">Economic indicators in wide format</td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">43 rows × 18 cols</td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">Economic context for transport data</td>
+                    </tr>
+                    <tr style="background-color: #0d1117;">
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;"><code style="color: #58a6ff;">transport_metrics_semiwide.csv</code></td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">Transport metrics with yearly values</td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">1289 rows × 49 cols</td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">Time series visualization</td>
+                    </tr>
+                    <tr style="background-color: #161b22;">
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;"><code style="color: #58a6ff;">econ_metrics_semiwide.csv</code></td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">Economic indicators with yearly values</td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">1229 rows × 20 cols</td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">Economic trend visualization</td>
+                    </tr>
+                    <tr style="background-color: #0d1117;">
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;"><code style="color: #58a6ff;">combined_measure_metadata.csv</code></td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">Metadata for all metrics</td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">59 rows × 8 cols</td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">Data dictionary and categorization</td>
+                    </tr>
+                    <tr style="background-color: #161b22;">
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;"><code style="color: #58a6ff;">measure_yearly_metadata.csv</code></td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">Metadata for yearly metrics</td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">65 rows × 6 cols</td>
+                        <td style="padding: 8px; border: 1px solid #30363d; color: white;">Time series documentation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <p style="margin-top: 15px; color: white;">These files provide the foundation for comprehensive transport infrastructure and investment analysis in the Streamlit dashboard.</p>
+    </div>
+</div>
