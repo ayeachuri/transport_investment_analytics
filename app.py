@@ -142,127 +142,184 @@ co2_columns = [col for col in transport_wide.columns if 'CO2' in col and 'pred20
 
 # Create tabs for different analyses
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "Investment vs. Emissions", 
-    "Investment Trends", 
-    "Investment Efficiency",
-    "Economic Impact",
-    "Custom metrics"
+    "Road Network Reliance vs CO2 emissions per person", 
+    "Road Investment and Traffic Safety", 
+    "Employment in Transport Sector",
+    "GDP Growth vs Transport Investment as \% \of GDP",
+    "Rail investment vs CO2"
 ])
 
-# Tab 1: Investment vs Emissions
+# Tab 1: Road Network vs CO2 Emissions
 with tab1:
-    st.header("Public Transport Investment vs CO2 Emissions")
-
-# Metric selection
-col1, col2 = st.columns(2)
-with col1:
-    selected_investment = st.selectbox(
-        "Select Investment Metric",
-        options=investment_columns,
-        index=0 if investment_columns else 0
-    )
+    st.header("Road Network Focus vs CO2 Emissions")
     
-with col2:
-    selected_co2 = st.selectbox(
-        "Select CO2 Emission Metric",
-        options=co2_columns,
-        index=0 if co2_columns else 0
-    )
-
-# Create the scatter plot
-if investment_columns and co2_columns:
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Find the road network percentage column
+    road_network_cols = [col for col in transport_wide.columns 
+                        if "Transport infrastructure: Percentage of road network" in col and "pred2000" in col]
     
-    # Plot all countries as background
-    sns.scatterplot(
-        x=transport_wide[selected_investment],
-        y=transport_wide[selected_co2],
-        alpha=0.3,
-        color='gray',
-        ax=ax
-    )
+    # Find CO2 emissions per person column
+    co2_person_cols = [col for col in transport_wide.columns 
+                      if "CO2 emissions in transport sector: Tonnes of CO2 per person" in col and "pred2000" in col]
     
-    # Highlight selected countries
-    if selected_countries:
-        selected_data = transport_wide.loc[selected_countries]
+    if road_network_cols and co2_person_cols:
+        # Get the columns (should be just one of each)
+        road_col = road_network_cols[0]
+        co2_col = co2_person_cols[0]
+        
+        # Create the scatter plot
+        fig, ax = plt.subplots(figsize=(12, 8))
+        
+        # Plot all countries as background
         sns.scatterplot(
-            x=selected_data[selected_investment],
-            y=selected_data[selected_co2],
-            ax=ax,
-            s=100,
-            hue=selected_data.index
+            x=transport_wide[road_col],
+            y=transport_wide[co2_col],
+            alpha=0.3,
+            color='gray',
+            ax=ax
         )
-    
-        # Add annotations for selected countries
-        for country in selected_countries:
-            if country in transport_wide.index:
-                x = transport_wide.loc[country, selected_investment]
-                y = transport_wide.loc[country, selected_co2]
-                ax.annotate(country, (x, y), xytext=(5, 5), textcoords='offset points')
-    
-    # Add regression line
-    sns.regplot(
-        x=transport_wide[selected_investment],
-        y=transport_wide[selected_co2],
-        scatter=False,
-        ax=ax,
-        color='red',
-        line_kws={'linestyle': '--'}
-    )
-    
-    # Clean up the column names for the axis labels
-    x_label = selected_investment.split('_pred2000')[0]
-    y_label = selected_co2.split('_pred2000')[0]
-    
-    ax.set_xlabel(x_label)
-    ax.set_ylabel(y_label)
-    ax.set_title(f'Relationship between {x_label} and {y_label}')
-    
-    # Add quadrant lines to divide plot into 4 regions (using medians)
-    x_median = transport_wide[selected_investment].median()
-    y_median = transport_wide[selected_co2].median()
-    
-    ax.axvline(x=x_median, color='gray', linestyle=':', alpha=0.5)
-    ax.axhline(y=y_median, color='gray', linestyle=':', alpha=0.5)
-    
-    # Add quadrant labels
-    ax.text(
-        transport_wide[selected_investment].max() * 0.9,
-        transport_wide[selected_co2].min() * 1.1,
-        "High Investment\nLow Emissions",
-        ha='right',
-        bbox=dict(facecolor='green', alpha=0.1)
-    )
-    
-    ax.text(
-        transport_wide[selected_investment].min() * 1.1,
-        transport_wide[selected_co2].max() * 0.9,
-        "Low Investment\nHigh Emissions",
-        ha='left',
-        bbox=dict(facecolor='red', alpha=0.1)
-    )
-    
-    st.pyplot(fig)
-    
-    # Add explanation
-    st.markdown("""
-    **Interpretation:**
-    - **Top Left**: Countries with low investment but high emissions
-    - **Top Right**: Countries with high investment and high emissions
-    - **Bottom Left**: Countries with low investment and low emissions
-    - **Bottom Right**: Countries with high investment and low emissions (typically most desirable)
-    
-    The regression line shows the general relationship between investment and emissions across all countries.
-    """)
-    
-    # Show the data in a table
-    if selected_countries:
-        st.subheader("Data for Selected Countries")
-        selected_data = transport_wide.loc[selected_countries, [selected_investment, selected_co2]]
-        selected_data.columns = [x_label, y_label]
-        st.dataframe(selected_data)
-else:
-    st.warning("No investment or CO2 metrics found in the data.")
+        
+        # Highlight selected countries
+        if selected_countries:
+            selected_data = transport_wide.loc[selected_countries].copy()
+            selected_data = selected_data.dropna(subset=[road_col, co2_col])
+            
+            # Only proceed if we have valid data
+            if not selected_data.empty:
+                # Get GDP data for selected countries if available
+                gdp_col = "Gross domestic product (GDP) (Total): US dollars/capita_pred2000"
+                
+                if gdp_col in econ_wide.columns:
+                    for country in selected_data.index:
+                        if country in econ_wide.index and pd.notna(econ_wide.loc[country, gdp_col]):
+                            selected_data.loc[country, 'GDP_per_capita'] = econ_wide.loc[country, gdp_col]
+                        else:
+                            selected_data.loc[country, 'GDP_per_capita'] = np.nan
+                    
+                    # Create GDP quartiles where GDP data is available
+                    valid_gdp = selected_data['GDP_per_capita'].notna()
+                    if valid_gdp.sum() >= 4:  # Need at least 4 points for quartiles
+                        selected_data.loc[valid_gdp, 'GDP_Quartile'] = pd.qcut(
+                            selected_data.loc[valid_gdp, 'GDP_per_capita'], 
+                            4, 
+                            labels=['Q1 (Lowest GDP)', 'Q2', 'Q3', 'Q4 (Highest GDP)']
+                        )
+                    else:
+                        selected_data['GDP_Quartile'] = 'Unknown'
+                    
+                    # Plot with color by GDP quartile if available
+                    if 'GDP_Quartile' in selected_data.columns and 'Unknown' not in selected_data['GDP_Quartile'].unique():
+                        # Convert categorical to string before ordering
+                        quartiles = selected_data['GDP_Quartile'].astype(str).unique()
+                        # Use a fixed order for quartiles
+                        quartile_order = ['Q1 (Lowest GDP)', 'Q2', 'Q3', 'Q4 (Highest GDP)']
+                        # Only use quartiles that exist in the data
+                        ordered_quartiles = [q for q in quartile_order if q in quartiles]
+                        
+                        sns.scatterplot(
+                            data=selected_data,
+                            x=road_col,
+                            y=co2_col,
+                            hue='GDP_Quartile',
+                            hue_order=ordered_quartiles,
+                            palette='viridis',
+                            s=100,
+                            ax=ax
+                        )
+                    else:
+                        # Fallback if no GDP data
+                        sns.scatterplot(
+                            data=selected_data,
+                            x=road_col,
+                            y=co2_col,
+                            hue=selected_data.index,
+                            s=100,
+                            ax=ax
+                        )
+                else:
+                    # Fallback if no GDP data
+                    sns.scatterplot(
+                        data=selected_data,
+                        x=road_col,
+                        y=co2_col,
+                        hue=selected_data.index,
+                        s=100,
+                        ax=ax
+                    )
+                
+                # Add annotations for selected countries
+                for country in selected_data.index:
+                    x = selected_data.loc[country, road_col]
+                    y = selected_data.loc[country, co2_col]
+                    ax.annotate(country, (x, y), xytext=(5, 5), textcoords='offset points')
+        
+        # Add regression line
+        sns.regplot(
+            x=transport_wide[road_col],
+            y=transport_wide[co2_col],
+            scatter=False,
+            ax=ax,
+            color='red',
+            line_kws={'linestyle': '--'}
+        )
+        
+        # Calculate correlation
+        valid_data = transport_wide.dropna(subset=[road_col, co2_col])
+        correlation = valid_data[road_col].corr(valid_data[co2_col])
+        
+        # Add correlation text
+        ax.text(
+            0.05, 0.95,
+            f'Correlation: {correlation:.2f}',
+            transform=ax.transAxes,
+            fontsize=10,
+            bbox=dict(facecolor='white', alpha=0.7)
+        )
+        
+        # Clean up the column names for the axis labels
+        x_label = road_col.split('_pred2000')[0]
+        y_label = co2_col.split('_pred2000')[0]
+        
+        ax.set_xlabel(x_label, fontsize=11)
+        ax.set_ylabel(y_label, fontsize=11)
+        ax.set_title(f'Relationship between Road Network Focus and CO2 Emissions', fontsize=14)
+        
+        # Add grid for better readability
+        ax.grid(True, alpha=0.3)
+        
+        # Show the plot
+        st.pyplot(fig)
+        
+        # Add explanation
+        st.markdown(f"""
+        **Road Infrastructure Focus vs CO2 Emissions**
+        
+        This scatter plot examines the relationship between a country's focus on road infrastructure 
+        (measured as percentage of transport infrastructure that is road network) and carbon emissions 
+        per person from the transport sector.
+        
+        **Key findings:**
+        
+        - The correlation coefficient between road network percentage and CO2 emissions is **{correlation:.2f}**
+        - {'A positive correlation suggests that countries with greater road focus tend to have higher emissions.' if correlation > 0 else 'This analysis does not show a strong relationship between road focus and emissions.'}
+        - {'Countries with a stronger emphasis on alternative transportation modes (rail, water, etc.) appear to have lower per capita emissions.' if correlation > 0.3 else ''}
+        
+        **Interpretation:**
+        Road-dominant transportation systems typically rely heavily on private vehicles, which are less 
+        energy-efficient per passenger than mass transit options like rail. This relationship highlights 
+        the environmental impact of transportation infrastructure choices.
+        
+        Different development patterns (urban density, city planning, geographic constraints) may explain 
+        why some countries deviate significantly from the trend line.
+        """)
+        
+        # Show the data in a table
+        if selected_countries:
+            with st.expander("Show Data for Selected Countries"):
+                display_data = transport_wide.loc[selected_countries, [road_col, co2_col]].copy().dropna()
+                display_data.columns = [x_label, y_label]
+                st.dataframe(display_data)
+    else:
+        st.error("Required road network or CO2 emissions metrics not found in the data.")
 
 # Tab 2: Investment vs Fatalities
 with tab2:
@@ -431,7 +488,6 @@ with tab2:
         st.warning("Please select both road investment and fatality metrics for the analysis.")
 
 
-# Tab 3: Investment Efficiency with Rail Network and Transit Cost
 # Tab 3: Employment in Transport Sector by GDP Quartile
 with tab3:
     st.header("Employment in Transport Sector by Economic Development Level")
@@ -616,237 +672,393 @@ with tab3:
 
 
 # Tab 4: Transport Investment trends vs GDP trends
+# Tab 4: GDP Growth by Transport Investment Quartiles
 with tab4:
-    st.header("Economic Growth and Transportation Investment Over Time")
+    st.header("GDP Growth Rates by Transport Investment Level")
     
-    # Find the GDP per capita time series in economic data
-    gdp_per_capita_cols = [col for col in econ_annual.columns 
-                           if "GDP" in col and "capita" in col and "dollars" in col.lower()]
+    # Find GDP columns in economic data
+    gdp_cols = [col for col in econ_annual.columns 
+               if "GDP" in col and "Total" in col and "US dollars" in col]
     
-    # Find investment as % of GDP in transport data
-    investment_gdp_cols = [col for col in transport_annual.columns 
-                           if "Investment" in col and "Percentage of GDP" in col]
+    # Find investment as % of GDP columns in transport data
+    investment_gdp_cols = [col for col in transport_wide.columns 
+                          if "Investment" in col and "Percentage of GDP" in col and "pred2000" in col]
     
-    if gdp_per_capita_cols and investment_gdp_cols:
-        # Select one GDP metric and one investment metric
-        col1, col2 = st.columns(2)
+    if gdp_cols and investment_gdp_cols:
+        # Let user select which GDP metric to use for growth calculation
+        selected_gdp = st.selectbox(
+            "Select GDP Metric for Growth Calculation",
+            options=gdp_cols,
+            index=0 if gdp_cols else 0
+        )
         
-        with col1:
-            selected_gdp = st.selectbox(
-                "Select GDP per Capita Metric",
-                options=gdp_per_capita_cols,
-                index=0 if gdp_per_capita_cols else 0
+        # Let user select which investment metric to use for clustering
+        selected_inv = st.selectbox(
+            "Select Transport Investment Metric for Clustering",
+            options=investment_gdp_cols,
+            index=0 if investment_gdp_cols else 0
+        )
+        
+        # Create a dataframe with countries and their investment levels
+        investment_data = []
+        
+        for country in transport_wide.index:
+            if pd.notna(transport_wide.loc[country, selected_inv]):
+                investment_data.append({
+                    'Country': country,
+                    'Investment': transport_wide.loc[country, selected_inv]
+                })
+        
+        investment_df = pd.DataFrame(investment_data)
+        
+        if not investment_df.empty:
+            # Create investment quartiles
+            investment_df['Investment_Quartile'] = pd.qcut(
+                investment_df['Investment'], 
+                4, 
+                labels=['Q1 (Lowest Investment)', 'Q2', 'Q3', 'Q4 (Highest Investment)']
             )
-        
-        with col2:
-            selected_inv = st.selectbox(
-                "Select Investment as % of GDP Metric",
-                options=investment_gdp_cols,
-                index=0 if investment_gdp_cols else 0
-            )
-        
-        # Get time series data for selected countries
-        if selected_countries:
-            # Filter GDP data
-            gdp_data = econ_annual[econ_annual['Reference area'].isin(selected_countries)]
-            gdp_data = gdp_data[['Reference area', 'TIME_PERIOD', selected_gdp]].dropna()
             
-            # Filter investment data
-            inv_data = transport_annual[transport_annual['Reference area'].isin(selected_countries)]
-            inv_data = inv_data[['Reference area', 'TIME_PERIOD', selected_inv]].dropna()
+            # Calculate GDP year-on-year growth rates for each country
+            gdp_growth_data = []
             
-            # Check if we have data
-            if gdp_data.empty or inv_data.empty:
-                st.warning("No time series data available for the selected countries and metrics.")
-            else:
-                # Create tabs for different visualization modes
-                ts_tab1, ts_tab2, ts_tab3 = st.tabs(["Individual Country Comparisons", 
-                                                     "GDP per Capita Trends", 
-                                                     "Investment % of GDP Trends"])
+            # Process each country
+            for country in econ_annual['Reference area'].unique():
+                # Skip if country is not in our investment data
+                if country not in investment_df['Country'].values:
+                    continue
                 
-                # Tab 1: Individual country comparisons (dual y-axis)
-                with ts_tab1:
-                    st.subheader("GDP per Capita vs Investment as % of GDP")
+                # Get investment quartile for this country
+                inv_quartile = investment_df.loc[investment_df['Country'] == country, 'Investment_Quartile'].values[0]
+                
+                # Get GDP data for this country
+                country_gdp = econ_annual[
+                    (econ_annual['Reference area'] == country) & 
+                    pd.notna(econ_annual[selected_gdp])
+                ][['TIME_PERIOD', selected_gdp]].sort_values('TIME_PERIOD')
+                
+                # Skip if not enough data points
+                if len(country_gdp) < 2:
+                    continue
+                
+                # Calculate year-on-year growth rates
+                country_gdp['GDP_Growth'] = country_gdp[selected_gdp].pct_change() * 100  # Convert to percentage
+                
+                # Skip the first row which will have NaN growth rate
+                country_gdp = country_gdp.dropna(subset=['GDP_Growth'])
+                
+                # Add country and investment quartile information
+                country_gdp['Country'] = country
+                country_gdp['Investment_Quartile'] = inv_quartile
+                country_gdp['Investment_Value'] = investment_df.loc[investment_df['Country'] == country, 'Investment'].values[0]
+                
+                # Append to our growth data
+                gdp_growth_data.append(country_gdp)
+            
+            if gdp_growth_data:
+                # Combine all country data
+                growth_df = pd.concat(gdp_growth_data, ignore_index=True)
+                
+                # Filter to selected countries if any selected
+                if selected_countries:
+                    filtered_growth = growth_df[growth_df['Country'].isin(selected_countries)]
+                    if filtered_growth.empty:
+                        st.warning("None of the selected countries have sufficient GDP data for growth calculation.")
+                        # Fallback to all countries
+                        filtered_growth = growth_df
+                else:
+                    filtered_growth = growth_df
+                
+                # Create tabs for different views
+                growth_tab1, growth_tab2, growth_tab3 = st.tabs([
+                    "Average Growth by Investment Quartile", 
+                    "Growth Trends by Investment Quartile",
+                    "Individual Country Growth Trends"
+                ])
+                
+                # Tab 1: Average Growth by Investment Quartile
+                with growth_tab1:
+                    st.subheader("Average GDP Growth by Transport Investment Level")
                     
-                    # Allow user to select a specific country for detailed analysis
-                    common_countries = list(set(gdp_data['Reference area'].unique()) & 
-                                           set(inv_data['Reference area'].unique()))
+                    # Calculate average growth by investment quartile
+                    avg_growth = filtered_growth.groupby('Investment_Quartile')['GDP_Growth'].agg(['mean', 'median', 'std', 'count']).reset_index()
                     
-                    if common_countries:
-                        selected_country = st.selectbox(
-                            "Select a country for detailed time series analysis",
-                            options=sorted(common_countries)
+                    # Sort by investment quartile (they should already be in order)
+                    avg_growth['quartile_order'] = avg_growth['Investment_Quartile'].apply(
+                        lambda x: ['Q1 (Lowest Investment)', 'Q2', 'Q3', 'Q4 (Highest Investment)'].index(x)
+                    )
+                    avg_growth = avg_growth.sort_values('quartile_order').drop('quartile_order', axis=1)
+                    
+                    # Create bar chart
+                    fig, ax = plt.subplots(figsize=(10, 6))
+                    
+                    # Plot mean growth as bars
+                    bars = ax.bar(
+                        avg_growth['Investment_Quartile'], 
+                        avg_growth['mean'],
+                        yerr=avg_growth['std'],
+                        capsize=5,
+                        color=sns.color_palette("viridis", 4)
+                    )
+                    
+                    # Add data labels on top of bars
+                    for bar in bars:
+                        height = bar.get_height()
+                        ax.annotate(
+                            f'{height:.2f}%',
+                            xy=(bar.get_x() + bar.get_width() / 2, height),
+                            xytext=(0, 3),  # 3 points vertical offset
+                            textcoords="offset points",
+                            ha='center', va='bottom',
+                            fontsize=10
                         )
-                        
-                        # Filter data for selected country
-                        country_gdp = gdp_data[gdp_data['Reference area'] == selected_country]
-                        country_inv = inv_data[inv_data['Reference area'] == selected_country]
-                        
-                        # Merge the data on year
-                        country_data = pd.merge(
-                            country_gdp, 
-                            country_inv, 
-                            on=['Reference area', 'TIME_PERIOD'],
-                            suffixes=('_gdp', '_inv')
-                        )
-                        
-                        if not country_data.empty:
-                            # Create dual y-axis plot
-                            fig, ax1 = plt.subplots(figsize=(12, 6))
+                    
+                    # Add a horizontal line at y=0
+                    ax.axhline(y=0, color='red', linestyle='-', alpha=0.3)
+                    
+                    # Customize the plot
+                    ax.set_xlabel('Transport Investment Quartile', fontsize=12)
+                    ax.set_ylabel('Average Annual GDP Growth (%)', fontsize=12)
+                    ax.set_title('Average GDP Growth Rate by Transport Investment Level', fontsize=14)
+                    ax.grid(True, axis='y', alpha=0.3)
+                    
+                    # Show the plot
+                    st.pyplot(fig)
+                    
+                    # Add a data table with statistics
+                    st.subheader("Summary Statistics")
+                    
+                    # Format the table
+                    display_stats = avg_growth.copy()
+                    display_stats.columns = ['Investment Quartile', 'Mean Growth (%)', 'Median Growth (%)', 'Std Dev', 'Count']
+                    display_stats['Mean Growth (%)'] = display_stats['Mean Growth (%)'].round(2)
+                    display_stats['Median Growth (%)'] = display_stats['Median Growth (%)'].round(2)
+                    display_stats['Std Dev'] = display_stats['Std Dev'].round(2)
+                    
+                    st.dataframe(display_stats)
+                    
+                    # Run ANOVA to test if differences are significant
+                    from scipy import stats
+                    
+                    # Create groups for ANOVA
+                    groups = []
+                    for quartile in avg_growth['Investment_Quartile']:
+                        group_data = filtered_growth[filtered_growth['Investment_Quartile'] == quartile]['GDP_Growth'].values
+                        if len(group_data) > 0:
+                            groups.append(group_data)
+                    
+                    # Only run ANOVA if we have at least 2 groups
+                    if len(groups) >= 2:
+                        try:
+                            f_stat, p_value = stats.f_oneway(*groups)
                             
-                            # Plot GDP per capita on left y-axis
-                            color = 'tab:blue'
-                            ax1.set_xlabel('Year')
-                            ax1.set_ylabel('GDP per Capita', color=color)
-                            ax1.plot(country_data['TIME_PERIOD'], country_data[selected_gdp], 
-                                    color=color, marker='o', linestyle='-', linewidth=2)
-                            ax1.tick_params(axis='y', labelcolor=color)
+                            # Display results
+                            st.metric("ANOVA p-value", f"{p_value:.4f}")
                             
-                            # Create second y-axis for investment as % of GDP
-                            ax2 = ax1.twinx()
-                            color = 'tab:red'
-                            ax2.set_ylabel('Investment as % of GDP', color=color)
-                            ax2.plot(country_data['TIME_PERIOD'], country_data[selected_inv], 
-                                    color=color, marker='s', linestyle='--', linewidth=2)
-                            ax2.tick_params(axis='y', labelcolor=color)
-                            
-                            # Add grid and title
-                            ax1.grid(True, alpha=0.3)
-                            plt.title(f"{selected_country}: GDP per Capita vs Transportation Investment")
-                            
-                            # Add legend
-                            gdp_line = plt.Line2D([0], [0], color='tab:blue', linewidth=2, marker='o', linestyle='-')
-                            inv_line = plt.Line2D([0], [0], color='tab:red', linewidth=2, marker='s', linestyle='--')
-                            plt.legend([gdp_line, inv_line], 
-                                      ['GDP per Capita', 'Investment as % of GDP'],
-                                      loc='upper left')
-                            
-                            # Improve x-axis ticks
-                            plt.xticks(country_data['TIME_PERIOD'].unique()[::2])  # Show every other year
-                            
-                            plt.tight_layout()
-                            st.pyplot(fig)
-                            
-                            # Calculate and display correlation
-                            correlation = country_data[selected_gdp].corr(country_data[selected_inv])
-                            st.metric(
-                                "Correlation between GDP per Capita and Investment",
-                                f"{correlation:.2f}"
-                            )
-                            
-                            # Add interpretation
-                            if correlation > 0.5:
-                                st.info("Strong positive correlation: As the economy grows, infrastructure investment grows proportionally or faster.")
-                            elif correlation > 0.2:
-                                st.info("Moderate positive correlation: Economic growth tends to be accompanied by increased infrastructure investment.")
-                            elif correlation > -0.2:
-                                st.info("Weak or no correlation: Infrastructure investment seems independent of economic growth.")
-                            elif correlation > -0.5:
-                                st.info("Moderate negative correlation: Infrastructure investment as a % of GDP tends to decrease as the economy grows.")
+                            if p_value < 0.05:
+                                st.success("There is a statistically significant difference in GDP growth rates between investment quartiles (p < 0.05).")
                             else:
-                                st.info("Strong negative correlation: Infrastructure investment as a % of GDP significantly decreases as the economy grows.")
+                                st.info("No statistically significant difference in GDP growth rates between investment quartiles (p > 0.05).")
+                        except:
+                            st.warning("Could not perform statistical test due to insufficient or invalid data.")
+                
+                # Tab 2: Growth Trends by Investment Quartile
+                with growth_tab2:
+                    st.subheader("GDP Growth Trends by Transport Investment Level")
+                    
+                    # Calculate average growth by year and investment quartile
+                    yearly_growth = filtered_growth.groupby(['TIME_PERIOD', 'Investment_Quartile'])['GDP_Growth'].mean().reset_index()
+                    
+                    # Create line plot
+                    fig, ax = plt.subplots(figsize=(12, 6))
+                    
+                    # Plot each investment quartile
+                    for i, quartile in enumerate(sorted(yearly_growth['Investment_Quartile'].unique())):
+                        quartile_data = yearly_growth[yearly_growth['Investment_Quartile'] == quartile]
+                        
+                        ax.plot(
+                            quartile_data['TIME_PERIOD'], 
+                            quartile_data['GDP_Growth'],
+                            marker='o',
+                            linewidth=2,
+                            label=quartile,
+                            color=sns.color_palette("viridis", 4)[i]
+                        )
+                    
+                    # Add a horizontal line at y=0
+                    ax.axhline(y=0, color='red', linestyle='-', alpha=0.3)
+                    
+                    # Customize the plot
+                    ax.set_xlabel('Year', fontsize=12)
+                    ax.set_ylabel('Average GDP Growth Rate (%)', fontsize=12)
+                    ax.set_title('GDP Growth Trends by Transport Investment Level', fontsize=14)
+                    ax.grid(True, alpha=0.3)
+                    ax.legend(title='Investment Quartile')
+                    
+                    # Improve x-axis ticks if many years
+                    years = sorted(yearly_growth['TIME_PERIOD'].unique())
+                    if len(years) > 15:
+                        # Show fewer ticks if many years
+                        ax.set_xticks(years[::3])
+                    elif len(years) > 10:
+                        ax.set_xticks(years[::2])
+                    else:
+                        ax.set_xticks(years)
+                    
+                    plt.tight_layout()
+                    st.pyplot(fig)
+                    
+                    # Add explanation
+                    st.markdown("""
+                    **Interpreting Growth Trends by Investment Level**
+                    
+                    This chart shows how average GDP growth rates have evolved over time for countries in different 
+                    transport investment quartiles.
+                    
+                    **Key patterns to look for:**
+                    
+                    1. **Consistent outperformance**: Do countries in higher investment quartiles consistently show 
+                       higher growth rates across different time periods?
+                    
+                    2. **Resilience to shocks**: During economic downturns, do countries with higher transport 
+                       investment show more resilience (smaller declines in growth)?
+                    
+                    3. **Recovery patterns**: Following economic shocks, do countries with higher transport investment 
+                       recover more quickly?
+                    
+                    4. **Long-term trends**: Over longer periods, is there a clear relationship between investment 
+                       level and average growth rates?
+                    """)
+                
+                # Tab 3: Individual Country Growth Trends
+                with growth_tab3:
+                    st.subheader("Individual Country GDP Growth Trends")
+                    
+                    # Allow selection of specific countries for comparison
+                    compare_countries = st.multiselect(
+                        "Select countries to compare",
+                        options=sorted(filtered_growth['Country'].unique()),
+                        default=sorted(filtered_growth['Country'].unique())[:min(5, len(filtered_growth['Country'].unique()))]
+                    )
+                    
+                    if compare_countries:
+                        # Filter to selected countries
+                        country_growth = filtered_growth[filtered_growth['Country'].isin(compare_countries)]
+                        
+                        # Create visualization
+                        fig, ax = plt.subplots(figsize=(12, 6))
+                        
+                        # Plot each country
+                        for country in compare_countries:
+                            country_data = country_growth[country_growth['Country'] == country]
+                            
+                            if not country_data.empty:
+                                # Get investment quartile for color coding
+                                inv_quartile = country_data['Investment_Quartile'].iloc[0]
+                                quartile_idx = ['Q1 (Lowest Investment)', 'Q2', 'Q3', 'Q4 (Highest Investment)'].index(inv_quartile)
+                                
+                                # Plot the country's growth trend
+                                ax.plot(
+                                    country_data['TIME_PERIOD'],
+                                    country_data['GDP_Growth'],
+                                    marker='o',
+                                    linewidth=2,
+                                    label=f"{country} ({inv_quartile})",
+                                    color=sns.color_palette("viridis", 4)[quartile_idx]
+                                )
+                        
+                        # Add a horizontal line at y=0
+                        ax.axhline(y=0, color='red', linestyle='-', alpha=0.3)
+                        
+                        # Customize the plot
+                        ax.set_xlabel('Year', fontsize=12)
+                        ax.set_ylabel('GDP Growth Rate (%)', fontsize=12)
+                        ax.set_title('Individual Country GDP Growth Trends', fontsize=14)
+                        ax.grid(True, alpha=0.3)
+                        ax.legend(title='Country (Investment Quartile)')
+                        
+                        # Improve x-axis ticks if many years
+                        years = sorted(country_growth['TIME_PERIOD'].unique())
+                        if len(years) > 15:
+                            # Show fewer ticks if many years
+                            ax.set_xticks(years[::3])
+                        elif len(years) > 10:
+                            ax.set_xticks(years[::2])
                         else:
-                            st.warning(f"No matching time periods found for {selected_country}.")
+                            ax.set_xticks(years)
+                        
+                        plt.tight_layout()
+                        st.pyplot(fig)
+                        
+                        # Show data table with investment values
+                        st.subheader("Transport Investment Levels")
+                        
+                        inv_levels = pd.DataFrame({
+                            'Country': compare_countries,
+                            'Investment (% of GDP)': [
+                                filtered_growth[filtered_growth['Country'] == c]['Investment_Value'].iloc[0]
+                                if not filtered_growth[filtered_growth['Country'] == c].empty else np.nan
+                                for c in compare_countries
+                            ],
+                            'Investment Quartile': [
+                                filtered_growth[filtered_growth['Country'] == c]['Investment_Quartile'].iloc[0]
+                                if not filtered_growth[filtered_growth['Country'] == c].empty else 'Unknown'
+                                for c in compare_countries
+                            ]
+                        })
+                        
+                        # Calculate average growth rate for each country
+                        avg_growth_rates = []
+                        for country in compare_countries:
+                            country_data = country_growth[country_growth['Country'] == country]
+                            if not country_data.empty:
+                                avg_growth_rates.append(country_data['GDP_Growth'].mean())
+                            else:
+                                avg_growth_rates.append(np.nan)
+                        
+                        inv_levels['Average Growth Rate (%)'] = [round(rate, 2) for rate in avg_growth_rates]
+                        
+                        # Sort by investment level
+                        inv_levels = inv_levels.sort_values('Investment (% of GDP)', ascending=False)
+                        
+                        st.dataframe(inv_levels)
                     else:
-                        st.warning("No countries have both GDP and investment time series data.")
+                        st.warning("Please select at least one country to compare.")
                 
-                # Tab 2: GDP per Capita trends for all selected countries
-                with ts_tab2:
-                    st.subheader("GDP per Capita Trends by Country")
-                    
-                    # Create line plot for GDP per capita
-                    fig, ax = plt.subplots(figsize=(12, 6))
-                    
-                    # Get unique countries
-                    countries = gdp_data['Reference area'].unique()
-                    
-                    # Plot each country
-                    for country in countries:
-                        country_data = gdp_data[gdp_data['Reference area'] == country]
-                        ax.plot(country_data['TIME_PERIOD'], country_data[selected_gdp], 
-                               marker='o', linewidth=2, label=country)
-                    
-                    ax.set_xlabel('Year')
-                    ax.set_ylabel('GDP per Capita')
-                    ax.set_title('GDP per Capita Trends')
-                    ax.grid(True, alpha=0.3)
-                    ax.legend()
-                    
-                    # Improve x-axis ticks if many years
-                    years = sorted(gdp_data['TIME_PERIOD'].unique())
-                    if len(years) > 10:
-                        # Show fewer ticks if many years
-                        ax.set_xticks(years[::2])
-                    else:
-                        ax.set_xticks(years)
-                    
-                    plt.tight_layout()
-                    st.pyplot(fig)
-                
-                # Tab 3: Investment as % of GDP trends for all selected countries
-                with ts_tab3:
-                    st.subheader("Transportation Investment as % of GDP by Country")
-                    
-                    # Create line plot for investment
-                    fig, ax = plt.subplots(figsize=(12, 6))
-                    
-                    # Get unique countries
-                    countries = inv_data['Reference area'].unique()
-                    
-                    # Plot each country
-                    for country in countries:
-                        country_data = inv_data[inv_data['Reference area'] == country]
-                        ax.plot(country_data['TIME_PERIOD'], country_data[selected_inv], 
-                               marker='s', linewidth=2, label=country)
-                    
-                    ax.set_xlabel('Year')
-                    ax.set_ylabel('Investment as % of GDP')
-                    ax.set_title('Transportation Investment Trends')
-                    ax.grid(True, alpha=0.3)
-                    ax.legend()
-                    
-                    # Improve x-axis ticks if many years
-                    years = sorted(inv_data['TIME_PERIOD'].unique())
-                    if len(years) > 10:
-                        # Show fewer ticks if many years
-                        ax.set_xticks(years[::2])
-                    else:
-                        ax.set_xticks(years)
-                    
-                    plt.tight_layout()
-                    st.pyplot(fig)
-                
-                # Add explanation
+                # Add overall interpretation
                 st.markdown("""
-                **Interpreting Economic Growth and Transportation Investment Time Series**
+                **Relationship Between Transport Investment and Economic Growth**
                 
-                These visualizations show the relationship between economic growth (GDP per capita) and transportation infrastructure investment over time.
+                This analysis explores whether countries with higher levels of transport infrastructure investment 
+                (as a percentage of GDP) tend to experience higher economic growth rates.
                 
-                **Key insights to look for:**
+                **Key considerations:**
                 
-                1. **Investment timing:** Do transportation investments precede economic growth, suggesting they may be drivers of growth?
+                1. **Causality vs. correlation**: A positive relationship between investment and growth doesn't necessarily 
+                   mean that investment causes growth. Countries with stronger economies may simply have more resources 
+                   to invest in infrastructure.
                 
-                2. **Investment cycles:** Are there cycles of investment followed by periods of economic growth?
+                2. **Time lags**: Infrastructure investments may take years or even decades to fully impact economic growth. 
+                   The growth benefits may not be immediately visible in the data.
                 
-                3. **Economic shocks:** How do transportation investments respond to economic shocks or recessions?
+                3. **Efficiency of investment**: The quality and efficiency of infrastructure investment matters, not just 
+                   the quantity. Some countries may achieve better growth outcomes with lower but more targeted investments.
                 
-                4. **Policy changes:** Can you identify periods where policy changes led to increases or decreases in infrastructure investment?
-                
-                5. **Proportional investment:** As economies grow, do they maintain, increase, or decrease the percentage of GDP dedicated to transportation infrastructure?
-                
-                The correlation coefficient provides a quantitative measure of the relationship between economic growth and transportation investment for each country.
+                4. **Context matters**: The optimal level of transport investment likely varies based on a country's existing 
+                   infrastructure, geography, population density, and economic structure.
                 """)
+            else:
+                st.warning("Insufficient GDP data to calculate growth rates for countries with investment data.")
         else:
-            st.warning("Please select at least one country to view time series data.")
+            st.warning("No transport investment data available.")
     else:
-        st.error("Required GDP per capita or investment metrics not found in the data.")
+        st.error("Required GDP or investment metrics not found in the data.")
 
 
 with tab5:
-    st.header("Rail Investment vs trend in CO2 Emissions")
+    st.header("Rail Investment vs CO2 Scatterplot, clustered")
     
     # Visualization 1: Rail Investment vs CO2 Emissions Trend (Slope)
-    st.subheader("1. Rail Investment Impact on CO2 Emissions Trend")
     
     # Get GDP data for creating quartiles
     gdp_col = "Gross domestic product (GDP) (Total): US dollars/capita_pred2000"
