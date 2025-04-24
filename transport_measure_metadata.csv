@@ -1,0 +1,42 @@
+,index,domain,measure,transport_mode,unit_of_measure,summary_type,measure-unit
+0,0,Infrastructure,Airports,,Per 1 000 000 inhabitants,raw,Airports: Per 1 000 000 inhabitants
+1,1,Environmental Impact,CO2 emissions in transport sector,,Kilogrammes of CO2-equivalent per 1 000 US dollars,raw,CO2 emissions in transport sector: Kilogrammes of CO2-equivalent per 1 000 US dollars
+2,2,Environmental Impact,CO2 emissions in transport sector,,Percentage of CO2 emissions,raw,CO2 emissions in transport sector: Percentage of CO2 emissions
+3,3,Environmental Impact,CO2 emissions in transport sector,,Percentage of CO2 emissions from transport,raw,CO2 emissions in transport sector: Percentage of CO2 emissions from transport
+4,4,Environmental Impact,CO2 emissions in transport sector,,Tonnes of CO2 per person,raw,CO2 emissions in transport sector: Tonnes of CO2 per person
+5,5,Transportation Infrastructure,Density,,Per 100 square kilometres,raw,Density: Per 100 square kilometres
+6,6,Economic Measures,Employment in the transport sector,,Percentage of employment,raw,Employment in the transport sector: Percentage of employment
+7,7,Economic Measures,Expenditure for personal transport equipment operation,,Percentage of household expenditure in transport,raw,Expenditure for personal transport equipment operation: Percentage of household expenditure in transport
+8,8,Economic Measures,Expenditure for transport services,,Percentage of household expenditure in transport,raw,Expenditure for transport services: Percentage of household expenditure in transport
+9,9,Safety & Social Impacts,Fatalities,,Per 1 000 000 000 vehicle-kilometres,raw,Fatalities: Per 1 000 000 000 vehicle-kilometres
+10,10,Safety & Social Impacts,Fatalities,,Per 10 000 road motor vehicles,raw,Fatalities: Per 10 000 road motor vehicles
+11,11,Safety & Social Impacts,Fatalities,,Per 100 000 inhabitants,raw,Fatalities: Per 100 000 inhabitants
+12,12,Transportation Activity,Freight transport,,Percentage of freight transport,raw,Freight transport: Percentage of freight transport
+13,13,Transportation Activity,Freight transport,,Tonne-kilometres per 1 000 US dollars,raw,Freight transport: Tonne-kilometres per 1 000 US dollars
+14,14,Environmental Impact,Fuel deliveries to the road sector,,Tonnes per person,raw,Fuel deliveries to the road sector: Tonnes per person
+15,15,Environmental Impact,Fuel deliveries to the road sector,,Tonnes per vehicle,raw,Fuel deliveries to the road sector: Tonnes per vehicle
+16,16,Economic Measures,Household expenditure for transport,,Percentage of household expenditure,raw,Household expenditure for transport: Percentage of household expenditure
+17,17,Transportation Activity,International traffic,,Percentage of seat capacity,raw,International traffic: Percentage of seat capacity
+18,18,Transportation Activity,International traffic,,Seat-kilometres per 1 000 US dollars,raw,International traffic: Seat-kilometres per 1 000 US dollars
+19,19,Other,Investment (Inland),,Percentage of GDP,raw,Investment (Inland): Percentage of GDP
+20,20,Other,Investment (Inland),,US dollars per person,raw,Investment (Inland): US dollars per person
+21,21,Other,Investment (Rail),,Percentage of GDP,raw,Investment (Rail): Percentage of GDP
+22,22,Other,Investment (Rail),,Percentage of infrastructure investment,raw,Investment (Rail): Percentage of infrastructure investment
+23,23,Other,Investment (Rail),,US dollars per person,raw,Investment (Rail): US dollars per person
+24,24,Other,Investment (Road),,Percentage of GDP,raw,Investment (Road): Percentage of GDP
+25,25,Other,Investment (Road),,Percentage of infrastructure investment,raw,Investment (Road): Percentage of infrastructure investment
+26,26,Other,Investment (Road),,US dollars per person,raw,Investment (Road): US dollars per person
+27,27,Other,Investment (Waterways),,US dollars per person,raw,Investment (Waterways): US dollars per person
+28,28,Infrastructure Investment,Maintenance,,Percentage of infrastructure maintenance,raw,Maintenance: Percentage of infrastructure maintenance
+29,29,Transportation Activity,National traffic,,Seat-kilometres per 1 000 US dollars,raw,National traffic: Seat-kilometres per 1 000 US dollars
+30,30,Transportation Activity,Passenger transport,,Passenger-kilometres per 1 000 US dollars,raw,Passenger transport: Passenger-kilometres per 1 000 US dollars
+31,31,Transportation Activity,Traffic,,Vehicle-kilometres per 1 000 US dollars,raw,Traffic: Vehicle-kilometres per 1 000 US dollars
+32,32,Infrastructure,Transport infrastructure,,Percentage of rail network,raw,Transport infrastructure: Percentage of rail network
+33,33,Infrastructure,Transport infrastructure,,Percentage of road network,raw,Transport infrastructure: Percentage of road network
+34,34,Economic Measures,Value added by the transport sector,,Percentage of value added,raw,Value added by the transport sector: Percentage of value added
+35,35,Transportation Activity,Vehicle distance travelled,,Kilometres,raw,Vehicle distance travelled: Kilometres
+36,36,Economic Measures,Vehicle purchases,,Percentage of household expenditure in transport,raw,Vehicle purchases: Percentage of household expenditure in transport
+37,37,Transportation Infrastructure,First registrations,,Per 1 000 000 US dollars,raw,First registrations: Per 1 000 000 US dollars
+38,38,Transportation Infrastructure,First registrations,,Per 1 000 inhabitants,raw,First registrations: Per 1 000 inhabitants
+39,39,Environmental Impact,Fuel deliveries to the road sector,,Tonnes per 1 000 000 US dollars,raw,Fuel deliveries to the road sector: Tonnes per 1 000 000 US dollars
+40,40,Other,Investment (Waterways),,Percentage of infrastructure investment,raw,Investment (Waterways): Percentage of infrastructure investment
