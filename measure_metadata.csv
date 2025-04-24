@@ -1,0 +1,133 @@
+,index,domain,measure,transport_mode,unit_of_measure,summary_type,measure-unit,data_source
+0,0,Infrastructure,Airports,,Per 1 000 000 inhabitants,pred2000,Airports: Per 1 000 000 inhabitants_pred2000,Transport Indicators
+1,1,Environmental Impact,CO2 emissions in transport sector,,Kilogrammes of CO2-equivalent per 1 000 US dollars,pred2000,CO2 emissions in transport sector: Kilogrammes of CO2-equivalent per 1 000 US dollars_pred2000,Transport Indicators
+2,2,Environmental Impact,CO2 emissions in transport sector,,Percentage of CO2 emissions,pred2000,CO2 emissions in transport sector: Percentage of CO2 emissions_pred2000,Transport Indicators
+3,3,Environmental Impact,CO2 emissions in transport sector,,Percentage of CO2 emissions from transport,pred2000,CO2 emissions in transport sector: Percentage of CO2 emissions from transport_pred2000,Transport Indicators
+4,4,Environmental Impact,CO2 emissions in transport sector,,Tonnes of CO2 per person,pred2000,CO2 emissions in transport sector: Tonnes of CO2 per person_pred2000,Transport Indicators
+5,5,Transportation Infrastructure,Density,,Per 100 square kilometres,pred2000,Density: Per 100 square kilometres_pred2000,Transport Indicators
+6,6,Economic Measures,Employment in the transport sector,,Percentage of employment,pred2000,Employment in the transport sector: Percentage of employment_pred2000,Transport Indicators
+7,7,Economic Measures,Expenditure for personal transport equipment operation,,Percentage of household expenditure in transport,pred2000,Expenditure for personal transport equipment operation: Percentage of household expenditure in transport_pred2000,Transport Indicators
+8,8,Economic Measures,Expenditure for transport services,,Percentage of household expenditure in transport,pred2000,Expenditure for transport services: Percentage of household expenditure in transport_pred2000,Transport Indicators
+9,9,Safety & Social Impacts,Fatalities,,Per 1 000 000 000 vehicle-kilometres,pred2000,Fatalities: Per 1 000 000 000 vehicle-kilometres_pred2000,Transport Indicators
+10,10,Safety & Social Impacts,Fatalities,,Per 10 000 road motor vehicles,pred2000,Fatalities: Per 10 000 road motor vehicles_pred2000,Transport Indicators
+11,11,Safety & Social Impacts,Fatalities,,Per 100 000 inhabitants,pred2000,Fatalities: Per 100 000 inhabitants_pred2000,Transport Indicators
+12,12,Transportation Activity,Freight transport,,Percentage of freight transport,pred2000,Freight transport: Percentage of freight transport_pred2000,Transport Indicators
+13,13,Transportation Activity,Freight transport,,Tonne-kilometres per 1 000 US dollars,pred2000,Freight transport: Tonne-kilometres per 1 000 US dollars_pred2000,Transport Indicators
+14,14,Environmental Impact,Fuel deliveries to the road sector,,Tonnes per person,pred2000,Fuel deliveries to the road sector: Tonnes per person_pred2000,Transport Indicators
+15,15,Environmental Impact,Fuel deliveries to the road sector,,Tonnes per vehicle,pred2000,Fuel deliveries to the road sector: Tonnes per vehicle_pred2000,Transport Indicators
+16,16,Economic Measures,Household expenditure for transport,,Percentage of household expenditure,pred2000,Household expenditure for transport: Percentage of household expenditure_pred2000,Transport Indicators
+17,17,Transportation Activity,International traffic,,Percentage of seat capacity,pred2000,International traffic: Percentage of seat capacity_pred2000,Transport Indicators
+18,18,Transportation Activity,International traffic,,Seat-kilometres per 1 000 US dollars,pred2000,International traffic: Seat-kilometres per 1 000 US dollars_pred2000,Transport Indicators
+19,19,Infrastructure Investment,Investment,Inland,Percentage of GDP,pred2000,Investment (Inland): Percentage of GDP_pred2000,Transport Indicators
+20,20,Infrastructure Investment,Investment,Inland,US dollars per person,pred2000,Investment (Inland): US dollars per person_pred2000,Transport Indicators
+21,21,Infrastructure Investment,Investment,Rail,Percentage of GDP,pred2000,Investment (Rail): Percentage of GDP_pred2000,Transport Indicators
+22,22,Infrastructure Investment,Investment,Rail,Percentage of infrastructure investment,pred2000,Investment (Rail): Percentage of infrastructure investment_pred2000,Transport Indicators
+23,23,Infrastructure Investment,Investment,Rail,US dollars per person,pred2000,Investment (Rail): US dollars per person_pred2000,Transport Indicators
+24,24,Infrastructure Investment,Investment,Road,Percentage of GDP,pred2000,Investment (Road): Percentage of GDP_pred2000,Transport Indicators
+25,25,Infrastructure Investment,Investment,Road,Percentage of infrastructure investment,pred2000,Investment (Road): Percentage of infrastructure investment_pred2000,Transport Indicators
+26,26,Infrastructure Investment,Investment,Road,US dollars per person,pred2000,Investment (Road): US dollars per person_pred2000,Transport Indicators
+27,27,Infrastructure Investment,Investment,Waterways,US dollars per person,pred2000,Investment (Waterways): US dollars per person_pred2000,Transport Indicators
+28,28,Infrastructure Investment,Maintenance,,Percentage of infrastructure maintenance,pred2000,Maintenance: Percentage of infrastructure maintenance_pred2000,Transport Indicators
+29,29,Transportation Activity,National traffic,,Seat-kilometres per 1 000 US dollars,pred2000,National traffic: Seat-kilometres per 1 000 US dollars_pred2000,Transport Indicators
+30,30,Transportation Activity,Passenger transport,,Passenger-kilometres per 1 000 US dollars,pred2000,Passenger transport: Passenger-kilometres per 1 000 US dollars_pred2000,Transport Indicators
+31,31,Transportation Activity,Traffic,,Vehicle-kilometres per 1 000 US dollars,pred2000,Traffic: Vehicle-kilometres per 1 000 US dollars_pred2000,Transport Indicators
+32,32,Infrastructure,Transport infrastructure,,Percentage of rail network,pred2000,Transport infrastructure: Percentage of rail network_pred2000,Transport Indicators
+33,33,Infrastructure,Transport infrastructure,,Percentage of road network,pred2000,Transport infrastructure: Percentage of road network_pred2000,Transport Indicators
+34,34,Economic Measures,Value added by the transport sector,,Percentage of value added,pred2000,Value added by the transport sector: Percentage of value added_pred2000,Transport Indicators
+35,35,Transportation Activity,Vehicle distance travelled,,Kilometres,pred2000,Vehicle distance travelled: Kilometres_pred2000,Transport Indicators
+36,36,Economic Measures,Vehicle purchases,,Percentage of household expenditure in transport,pred2000,Vehicle purchases: Percentage of household expenditure in transport_pred2000,Transport Indicators
+37,37,Infrastructure,Airports,,Per 1 000 000 inhabitants,slope,Airports: Per 1 000 000 inhabitants_slope,Transport Indicators
+38,38,Environmental Impact,CO2 emissions in transport sector,,Kilogrammes of CO2-equivalent per 1 000 US dollars,slope,CO2 emissions in transport sector: Kilogrammes of CO2-equivalent per 1 000 US dollars_slope,Transport Indicators
+39,39,Environmental Impact,CO2 emissions in transport sector,,Percentage of CO2 emissions,slope,CO2 emissions in transport sector: Percentage of CO2 emissions_slope,Transport Indicators
+40,40,Environmental Impact,CO2 emissions in transport sector,,Percentage of CO2 emissions from transport,slope,CO2 emissions in transport sector: Percentage of CO2 emissions from transport_slope,Transport Indicators
+41,41,Environmental Impact,CO2 emissions in transport sector,,Tonnes of CO2 per person,slope,CO2 emissions in transport sector: Tonnes of CO2 per person_slope,Transport Indicators
+42,42,Transportation Infrastructure,Density,,Per 100 square kilometres,slope,Density: Per 100 square kilometres_slope,Transport Indicators
+43,43,Economic Measures,Employment in the transport sector,,Percentage of employment,slope,Employment in the transport sector: Percentage of employment_slope,Transport Indicators
+44,44,Economic Measures,Expenditure for personal transport equipment operation,,Percentage of household expenditure in transport,slope,Expenditure for personal transport equipment operation: Percentage of household expenditure in transport_slope,Transport Indicators
+45,45,Economic Measures,Expenditure for transport services,,Percentage of household expenditure in transport,slope,Expenditure for transport services: Percentage of household expenditure in transport_slope,Transport Indicators
+46,46,Safety & Social Impacts,Fatalities,,Per 1 000 000 000 vehicle-kilometres,slope,Fatalities: Per 1 000 000 000 vehicle-kilometres_slope,Transport Indicators
+47,47,Safety & Social Impacts,Fatalities,,Per 10 000 road motor vehicles,slope,Fatalities: Per 10 000 road motor vehicles_slope,Transport Indicators
+48,48,Safety & Social Impacts,Fatalities,,Per 100 000 inhabitants,slope,Fatalities: Per 100 000 inhabitants_slope,Transport Indicators
+49,49,Transportation Infrastructure,First registrations,,Per 1 000 000 US dollars,slope,First registrations: Per 1 000 000 US dollars_slope,Transport Indicators
+50,50,Transportation Infrastructure,First registrations,,Per 1 000 inhabitants,slope,First registrations: Per 1 000 inhabitants_slope,Transport Indicators
+51,51,Transportation Activity,Freight transport,,Percentage of freight transport,slope,Freight transport: Percentage of freight transport_slope,Transport Indicators
+52,52,Transportation Activity,Freight transport,,Tonne-kilometres per 1 000 US dollars,slope,Freight transport: Tonne-kilometres per 1 000 US dollars_slope,Transport Indicators
+53,53,Environmental Impact,Fuel deliveries to the road sector,,Tonnes per 1 000 000 US dollars,slope,Fuel deliveries to the road sector: Tonnes per 1 000 000 US dollars_slope,Transport Indicators
+54,54,Environmental Impact,Fuel deliveries to the road sector,,Tonnes per person,slope,Fuel deliveries to the road sector: Tonnes per person_slope,Transport Indicators
+55,55,Environmental Impact,Fuel deliveries to the road sector,,Tonnes per vehicle,slope,Fuel deliveries to the road sector: Tonnes per vehicle_slope,Transport Indicators
+56,56,Economic Measures,Household expenditure for transport,,Percentage of household expenditure,slope,Household expenditure for transport: Percentage of household expenditure_slope,Transport Indicators
+57,57,Transportation Activity,International traffic,,Percentage of seat capacity,slope,International traffic: Percentage of seat capacity_slope,Transport Indicators
+58,58,Transportation Activity,International traffic,,Seat-kilometres per 1 000 US dollars,slope,International traffic: Seat-kilometres per 1 000 US dollars_slope,Transport Indicators
+59,59,Infrastructure Investment,Investment,Inland,Percentage of GDP,slope,Investment (Inland): Percentage of GDP_slope,Transport Indicators
+60,60,Infrastructure Investment,Investment,Inland,US dollars per person,slope,Investment (Inland): US dollars per person_slope,Transport Indicators
+61,61,Infrastructure Investment,Investment,Rail,Percentage of GDP,slope,Investment (Rail): Percentage of GDP_slope,Transport Indicators
+62,62,Infrastructure Investment,Investment,Rail,Percentage of infrastructure investment,slope,Investment (Rail): Percentage of infrastructure investment_slope,Transport Indicators
+63,63,Infrastructure Investment,Investment,Rail,US dollars per person,slope,Investment (Rail): US dollars per person_slope,Transport Indicators
+64,64,Infrastructure Investment,Investment,Road,Percentage of GDP,slope,Investment (Road): Percentage of GDP_slope,Transport Indicators
+65,65,Infrastructure Investment,Investment,Road,Percentage of infrastructure investment,slope,Investment (Road): Percentage of infrastructure investment_slope,Transport Indicators
+66,66,Infrastructure Investment,Investment,Road,US dollars per person,slope,Investment (Road): US dollars per person_slope,Transport Indicators
+67,67,Infrastructure Investment,Investment,Waterways,Percentage of infrastructure investment,slope,Investment (Waterways): Percentage of infrastructure investment_slope,Transport Indicators
+68,68,Infrastructure Investment,Investment,Waterways,US dollars per person,slope,Investment (Waterways): US dollars per person_slope,Transport Indicators
+69,69,Infrastructure Investment,Maintenance,,Percentage of infrastructure maintenance,slope,Maintenance: Percentage of infrastructure maintenance_slope,Transport Indicators
+70,70,Transportation Activity,National traffic,,Seat-kilometres per 1 000 US dollars,slope,National traffic: Seat-kilometres per 1 000 US dollars_slope,Transport Indicators
+71,71,Transportation Activity,Passenger transport,,Passenger-kilometres per 1 000 US dollars,slope,Passenger transport: Passenger-kilometres per 1 000 US dollars_slope,Transport Indicators
+72,72,Transportation Activity,Traffic,,Vehicle-kilometres per 1 000 US dollars,slope,Traffic: Vehicle-kilometres per 1 000 US dollars_slope,Transport Indicators
+73,73,Infrastructure,Transport infrastructure,,Percentage of rail network,slope,Transport infrastructure: Percentage of rail network_slope,Transport Indicators
+74,74,Infrastructure,Transport infrastructure,,Percentage of road network,slope,Transport infrastructure: Percentage of road network_slope,Transport Indicators
+75,75,Economic Measures,Value added by the transport sector,,Percentage of value added,slope,Value added by the transport sector: Percentage of value added_slope,Transport Indicators
+76,76,Transportation Activity,Vehicle distance travelled,,Kilometres,slope,Vehicle distance travelled: Kilometres_slope,Transport Indicators
+77,77,Economic Measures,Vehicle purchases,,Percentage of household expenditure in transport,slope,Vehicle purchases: Percentage of household expenditure in transport_slope,Transport Indicators
+78,78,Economic - Currency,Exchange rates,,National currency units/US dollar,raw,Exchange rates (Total): National currency units/US dollar,Economic Indicators
+79,79,Other Economic,Gross domestic product,,US dollars/capita,raw,Gross domestic product (GDP) (Total): US dollars/capita,Economic Indicators
+80,80,Other Economic,Gross domestic product,,Million US dollars,raw,Gross domestic product (GDP) (Total): Million US dollars,Economic Indicators
+81,81,Other Economic,Purchasing power parities,,National currency units/US dollar,raw,Purchasing power parities (PPP) (Total): National currency units/US dollar,Economic Indicators
+82,82,Environmental,Air pollution exposure,,Micrograms per cubic metre,raw,Air pollution exposure (Exposure to PM2.5): Micrograms per cubic metre,Economic Indicators
+83,83,Environmental,Air pollution exposure,,% of population,raw,Air pollution exposure (Exposure to PM2.5): % of population,Economic Indicators
+84,84,Other Economic,Gender wage gap,,Percentage,raw,Gender wage gap (Employees): Percentage,Economic Indicators
+85,85,Economic - Production,GDP per hour worked,,2015=100,raw,GDP per hour worked (Total): 2015=100,Economic Indicators
+86,86,Economic - Labour,Employment rate,,Thousand persons,raw,Employment rate (Total): Thousand persons,Economic Indicators
+87,87,Other Economic,Average wages,,US dollars,raw,Average wages (Total): US dollars,Economic Indicators
+88,88,Economic - Production,GDP per hour worked,,US dollars,raw,GDP per hour worked (Total): US dollars,Economic Indicators
+89,89,Economic - Labour,Employment rate,,% of working age population,raw,Employment rate (Total): % of working age population,Economic Indicators
+90,90,Economic - Labour,Employment rate,,Thousand persons,raw,Employment rate (Women): Thousand persons,Economic Indicators
+91,91,Economic - Labour,Employment rate,,% of working age population,raw,Employment rate (Women): % of working age population,Economic Indicators
+92,92,Economic - Labour,Employment rate,,% of working age population,raw,Employment rate (Men): % of working age population,Economic Indicators
+93,93,Economic - Labour,Employment rate,,Thousand persons,raw,Employment rate (Men): Thousand persons,Economic Indicators
+94,94,Other Economic,Trust in government,,Percentage,raw,Trust in government (Total): Percentage,Economic Indicators
+95,95,Other Economic,Gender wage gap,,Percentage,raw,Gender wage gap (Self-employed): Percentage,Economic Indicators
+96,96,Economic Indicators,Exchange rates (Total),,National currency units/US dollar,pred2000,Exchange rates (Total): National currency units/US dollar_pred2000,Economic Indicators
+97,97,Economic Indicators,Exchange rates (Total),,National currency units/US dollar,slope,Exchange rates (Total): National currency units/US dollar_slope,Economic Indicators
+98,98,Economic Indicators,Gross domestic product (GDP) (Total),,US dollars/capita,pred2000,Gross domestic product (GDP) (Total): US dollars/capita_pred2000,Economic Indicators
+99,99,Economic Indicators,Gross domestic product (GDP) (Total),,US dollars/capita,slope,Gross domestic product (GDP) (Total): US dollars/capita_slope,Economic Indicators
+100,100,Economic Indicators,Gross domestic product (GDP) (Total),,Million US dollars,pred2000,Gross domestic product (GDP) (Total): Million US dollars_pred2000,Economic Indicators
+101,101,Economic Indicators,Gross domestic product (GDP) (Total),,Million US dollars,slope,Gross domestic product (GDP) (Total): Million US dollars_slope,Economic Indicators
+102,102,Economic Indicators,Purchasing power parities (PPP) (Total),,National currency units/US dollar,pred2000,Purchasing power parities (PPP) (Total): National currency units/US dollar_pred2000,Economic Indicators
+103,103,Economic Indicators,Purchasing power parities (PPP) (Total),,National currency units/US dollar,slope,Purchasing power parities (PPP) (Total): National currency units/US dollar_slope,Economic Indicators
+104,104,Economic Indicators,Air pollution exposure (Exposure to PM2.5),,Micrograms per cubic metre,pred2000,Air pollution exposure (Exposure to PM2.5): Micrograms per cubic metre_pred2000,Economic Indicators
+105,105,Economic Indicators,Air pollution exposure (Exposure to PM2.5),,Micrograms per cubic metre,slope,Air pollution exposure (Exposure to PM2.5): Micrograms per cubic metre_slope,Economic Indicators
+106,106,Economic Indicators,Air pollution exposure (Exposure to PM2.5),,% of population,pred2000,Air pollution exposure (Exposure to PM2.5): % of population_pred2000,Economic Indicators
+107,107,Economic Indicators,Air pollution exposure (Exposure to PM2.5),,% of population,slope,Air pollution exposure (Exposure to PM2.5): % of population_slope,Economic Indicators
+108,108,Economic Indicators,Gender wage gap (Employees),,Percentage,pred2000,Gender wage gap (Employees): Percentage_pred2000,Economic Indicators
+109,109,Economic Indicators,Gender wage gap (Employees),,Percentage,slope,Gender wage gap (Employees): Percentage_slope,Economic Indicators
+110,110,Economic Indicators,GDP per hour worked (Total),,2015=100,pred2000,GDP per hour worked (Total): 2015=100_pred2000,Economic Indicators
+111,111,Economic Indicators,GDP per hour worked (Total),,2015=100,slope,GDP per hour worked (Total): 2015=100_slope,Economic Indicators
+112,112,Economic Indicators,Employment rate (Total),,Thousand persons,pred2000,Employment rate (Total): Thousand persons_pred2000,Economic Indicators
+113,113,Economic Indicators,Employment rate (Total),,Thousand persons,slope,Employment rate (Total): Thousand persons_slope,Economic Indicators
+114,114,Economic Indicators,Average wages (Total),,US dollars,pred2000,Average wages (Total): US dollars_pred2000,Economic Indicators
+115,115,Economic Indicators,Average wages (Total),,US dollars,slope,Average wages (Total): US dollars_slope,Economic Indicators
+116,116,Economic Indicators,GDP per hour worked (Total),,US dollars,pred2000,GDP per hour worked (Total): US dollars_pred2000,Economic Indicators
+117,117,Economic Indicators,GDP per hour worked (Total),,US dollars,slope,GDP per hour worked (Total): US dollars_slope,Economic Indicators
+118,118,Economic Indicators,Employment rate (Total),,% of working age population,pred2000,Employment rate (Total): % of working age population_pred2000,Economic Indicators
+119,119,Economic Indicators,Employment rate (Total),,% of working age population,slope,Employment rate (Total): % of working age population_slope,Economic Indicators
+120,120,Economic Indicators,Employment rate (Women),,Thousand persons,pred2000,Employment rate (Women): Thousand persons_pred2000,Economic Indicators
+121,121,Economic Indicators,Employment rate (Women),,Thousand persons,slope,Employment rate (Women): Thousand persons_slope,Economic Indicators
+122,122,Economic Indicators,Employment rate (Women),,% of working age population,pred2000,Employment rate (Women): % of working age population_pred2000,Economic Indicators
+123,123,Economic Indicators,Employment rate (Women),,% of working age population,slope,Employment rate (Women): % of working age population_slope,Economic Indicators
+124,124,Economic Indicators,Employment rate (Men),,% of working age population,pred2000,Employment rate (Men): % of working age population_pred2000,Economic Indicators
+125,125,Economic Indicators,Employment rate (Men),,% of working age population,slope,Employment rate (Men): % of working age population_slope,Economic Indicators
+126,126,Economic Indicators,Employment rate (Men),,Thousand persons,pred2000,Employment rate (Men): Thousand persons_pred2000,Economic Indicators
+127,127,Economic Indicators,Employment rate (Men),,Thousand persons,slope,Employment rate (Men): Thousand persons_slope,Economic Indicators
+128,128,Economic Indicators,Trust in government (Total),,Percentage,pred2000,Trust in government (Total): Percentage_pred2000,Economic Indicators
+129,129,Economic Indicators,Trust in government (Total),,Percentage,slope,Trust in government (Total): Percentage_slope,Economic Indicators
+130,130,Economic Indicators,Gender wage gap (Self-employed),,Percentage,pred2000,Gender wage gap (Self-employed): Percentage_pred2000,Economic Indicators
+131,131,Economic Indicators,Gender wage gap (Self-employed),,Percentage,slope,Gender wage gap (Self-employed): Percentage_slope,Economic Indicators
