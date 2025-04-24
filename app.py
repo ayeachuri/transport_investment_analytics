@@ -16,13 +16,9 @@ st.title("Transportation Investment Impact Analysis")
 st.markdown("""
 This dashboard explores correlations among transport and economic indicators across countries.
 
-Presently, the relationships are largely superficial and indicate a need for further examining and transforming of the data. Consider it an exercise in dashboarding / visualization.
+Presently, the relationships are largely superficial. There is a need for further examining and transforming of the data. Consider it an exercise in building visualizations.
             
-Use the sidebar to select countries and metrics of interest. The dashboard provides four main analyses:
-1. **Investment vs. Emissions**: How transportation investment relates to environmental outcomes
-2. **Investment Trends**: How investment has changed over time across countries
-3. **Investment Efficiency**: Which countries get the most benefit per unit of investment
-4. **Economic Impact**: How transportation strategies relate to economic outcomes
+Use the sidebar to select countries of interest. 
 """)
 
 # Load the data files
@@ -323,18 +319,10 @@ with tab1:
             
             - The correlation between rail network percentage and average trust in government is **{correlation:.2f}**
             - {"Countries with higher rail network percentages (Q3 and Q4) tend to have higher levels of trust in government." if correlation > 0.2 else ""}
-            - {"Countries with lower rail network percentages (Q1 and Q2) tend to have higher levels of trust in government." if correlation < -0.2 else ""}
-            - {"There is no clear relationship between rail network percentage and trust in government." if abs(correlation) <= 0.2 else ""}
+            - {"There are clearly issues in data availability as the plot only has 7 of the 43 countries. This also causes wild swings year-to-year."}
+            - {"The one country in Q4 seems may just have had a bad election cycle in 2018 😂"}
             
-            **Potential interpretations:**
-            
-            {"- Greater investment in public rail infrastructure may signal government commitment to public services, potentially building trust" if correlation > 0 else ""}
-            {"- Efficient public transportation may improve citizens' daily lives and satisfaction with government" if correlation > 0 else ""}
-            {"- The relationship might reflect broader social and political factors rather than direct causation" if abs(correlation) > 0.2 else ""}
-            {"- Trust in government is influenced by many factors beyond transportation infrastructure" if abs(correlation) <= 0.2 else ""}
-            
-            It's important to note that correlation does not imply causation - these two metrics may be connected 
-            through other underlying factors or their relationship might be coincidental.
+            We do not have sufficient data here to make meaningful interpretations. 
             """)
         
         # Tab 2: Individual Country Trends
