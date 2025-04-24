@@ -430,7 +430,7 @@ with tab2:
     else:
         st.warning("Please select both road investment and fatality metrics for the analysis.")
 
-# Tab 3: Investment Efficiency
+
 # Tab 3: Investment Efficiency with Rail Network and Transit Cost
 with tab3:
     st.header("Rail Network Growth vs Transit Cost Efficiency")
@@ -479,7 +479,6 @@ with tab3:
                 
                 if plot_data.empty:
                     st.warning("None of the selected countries have data for both rail network and transit efficiency trends.")
-                    return
             else:
                 plot_data = efficiency_data
             
