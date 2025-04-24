@@ -671,9 +671,15 @@ with tab5:
             # Define color palette
             palette = sns.color_palette("viridis", 4)
             
-            # Plot points colored by GDP quartile if available
+                            # Plot points colored by GDP quartile if available
             if 'Unknown' not in efficiency_data['GDP_Quartile'].unique():
-                for i, quartile in enumerate(sorted(efficiency_data['GDP_Quartile'].unique())):
+                # Convert categorical to string before sorting if needed
+                quartiles = efficiency_data['GDP_Quartile'].astype(str).unique()
+                # Use a fixed order for quartiles instead of sorting
+                quartile_order = ['Q1 (Lowest GDP)', 'Q2', 'Q3', 'Q4 (Highest GDP)']
+                # Only use quartiles that exist in the data
+                ordered_quartiles = [q for q in quartile_order if q in quartiles]
+                for i, quartile in enumerate(ordered_quartiles):
                     quartile_data = efficiency_data[efficiency_data['GDP_Quartile'] == quartile]
                     
                     # Plot the scatter points
@@ -797,4 +803,4 @@ with tab5:
         else:
             st.warning("Insufficient data to create the Rail Network vs Transit Efficiency visualization.")
     else:
-        st.error("Required columns not found for Rail Network vs Transit Efficiency visualization.")
+        st.error("Required columns not found for Rail Network vs Transit Efficiency visualization
