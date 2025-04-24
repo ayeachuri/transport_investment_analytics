@@ -750,7 +750,7 @@ with tab4:
 
 
 with tab5:
-    st.header("Advanced Analysis: Investment Impact on Emissions and Efficiency")
+    st.header("Rail Investment vs trend in CO2 Emissions")
     
     # Visualization 1: Rail Investment vs CO2 Emissions Trend (Slope)
     st.subheader("1. Rail Investment Impact on CO2 Emissions Trend")
