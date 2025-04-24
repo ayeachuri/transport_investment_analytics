@@ -27,7 +27,7 @@ Use the sidebar to select countries and metrics of interest. The dashboard provi
 # Load the data files
 @st.cache_data
 def load_data():
-    transport_wide = pd.read_csv('transport_metrics_wide.csv', index_col='Reference area')
+    transport_wide = pd.read_csv('transport_metrics_agg_wide.csv', index_col='Reference area')
     econ_wide = pd.read_csv('econ_metrics_agg_wide.csv', index_col='Reference area')
     transport_annual = pd.read_csv('transport_metrics_semiwide.csv')
     econ_annual = pd.read_csv('econ_metrics_semiwide.csv')
