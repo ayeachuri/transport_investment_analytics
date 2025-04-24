@@ -54,12 +54,87 @@ if st.checkbox("Show dataset information"):
     st.write("Yearly metadata shape:", yearly_metadata.shape)
 
 # Sidebar with filters
-st.sidebar.header("Filters")
-selected_countries = st.sidebar.multiselect(
-    "Select Countries",
-    options=sorted(transport_wide.index.tolist()),
-    default=sorted(transport_wide.index.tolist()[:5])  # Default to first 5 countries
+# Calculate GDP quartiles
+gdp_col = "Gross domestic product (GDP) (Total): US dollars/capita_pred2000"
+countries_with_gdp = []
+
+# Make sure we only include countries present in both datasets
+for country in transport_wide.index:
+    if country in econ_wide.index and pd.notna(econ_wide.loc[country, gdp_col]):
+        countries_with_gdp.append({
+            'Country': country,
+            'GDP_per_capita': econ_wide.loc[country, gdp_col]
+        })
+
+gdp_data = pd.DataFrame(countries_with_gdp)
+gdp_data['GDP_Quartile'] = pd.qcut(
+    gdp_data['GDP_per_capita'], 
+    4, 
+    labels=['Q1 (Lowest GDP)', 'Q2', 'Q3', 'Q4 (Highest GDP)']
 )
+
+# Create country lists by quartile
+q1_countries = sorted(gdp_data[gdp_data['GDP_Quartile'] == 'Q1 (Lowest GDP)']['Country'].tolist())
+q2_countries = sorted(gdp_data[gdp_data['GDP_Quartile'] == 'Q2']['Country'].tolist())
+q3_countries = sorted(gdp_data[gdp_data['GDP_Quartile'] == 'Q3']['Country'].tolist())
+q4_countries = sorted(gdp_data[gdp_data['GDP_Quartile'] == 'Q4 (Highest GDP)']['Country'].tolist())
+
+# Create a dictionary for countries without GDP data (if any)
+countries_without_gdp = sorted(list(set(transport_wide.index) - set(gdp_data['Country'])))
+
+# Sidebar with filters by GDP quartile
+st.sidebar.header("Countries by GDP Per Capita")
+
+# Create expandable sections for each quartile
+with st.sidebar.expander("Q1 - Lowest GDP Countries", expanded=True):
+    selected_q1 = st.multiselect(
+        "Select Q1 Countries",
+        options=q1_countries,
+        default=q1_countries[:2] if len(q1_countries) >= 2 else q1_countries
+    )
+
+with st.sidebar.expander("Q2 - Lower-Middle GDP Countries", expanded=True):
+    selected_q2 = st.multiselect(
+        "Select Q2 Countries",
+        options=q2_countries,
+        default=q2_countries[:2] if len(q2_countries) >= 2 else q2_countries
+    )
+
+with st.sidebar.expander("Q3 - Upper-Middle GDP Countries", expanded=True):
+    selected_q3 = st.multiselect(
+        "Select Q3 Countries",
+        options=q3_countries,
+        default=q3_countries[:2] if len(q3_countries) >= 2 else q3_countries
+    )
+
+with st.sidebar.expander("Q4 - Highest GDP Countries", expanded=True):
+    selected_q4 = st.multiselect(
+        "Select Q4 Countries",
+        options=q4_countries,
+        default=q4_countries[:2] if len(q4_countries) >= 2 else q4_countries
+    )
+
+# Section for countries without GDP data (if any)
+if countries_without_gdp:
+    with st.sidebar.expander("Countries with Unknown GDP", expanded=False):
+        selected_unknown = st.multiselect(
+            "Select Countries",
+            options=countries_without_gdp,
+            default=[]
+        )
+    # Combine selections from all quartiles plus unknown GDP countries
+    selected_countries = selected_q1 + selected_q2 + selected_q3 + selected_q4 + selected_unknown
+else:
+    # Combine selections from all quartiles
+    selected_countries = selected_q1 + selected_q2 + selected_q3 + selected_q4
+
+# Show the total number of selected countries
+st.sidebar.write(f"**Total countries selected:** {len(selected_countries)}")
+
+# Optional: Display GDP quartile ranges
+if st.sidebar.checkbox("Show GDP quartile ranges"):
+    quartile_ranges = gdp_data.groupby('GDP_Quartile')['GDP_per_capita'].agg(['min', 'max'])
+    st.sidebar.dataframe(quartile_ranges.style.format("${:,.0f}"))
 
 # Find available investment and CO2 metrics
 investment_columns = [col for col in transport_wide.columns if 'Investment' in col and 'pred2000' in col]
