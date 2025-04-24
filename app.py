@@ -455,124 +455,346 @@ with tab4:
     else:
         st.warning("Please select both economic and transportation metrics for the impact analysis.")
 
+
 with tab5:
-    st.header("Custom tests")
-
-    # Define the specific columns we want to use
-x_col = 'Investment (Rail): US dollars per person_pred2000'
-y_col = 'CO2 emissions in transport sector: Tonnes of CO2 per person_pred2000'
-
-# Find productivity column in economic data
-productivity_col = 'GDP per hour worked (Total): 2015=100_pred2000'
-
-if productivity_col not in econ_wide.columns:
-    st.error(f"Productivity column '{productivity_col}' not found in economic data.")
-    st.info("Please make sure economic data contains labor productivity information.")
-    st.stop()
-
-# Merge transport and economic data
-data_rows = []
-common_countries = set(transport_wide.index) & set(econ_wide.index)
-
-if x_col in transport_wide.columns and y_col in transport_wide.columns:
-    for country in common_countries:
-        if pd.notna(transport_wide.loc[country, x_col]) and pd.notna(transport_wide.loc[country, y_col]) and pd.notna(econ_wide.loc[country, productivity_col]):
-            data_rows.append({
-                'Country': country,
-                'Rail_Investment': transport_wide.loc[country, x_col],
-                'CO2_Emissions': transport_wide.loc[country, y_col],
-                'Labor_Productivity': econ_wide.loc[country, productivity_col]
-            })
+    st.header("Advanced Analysis: Investment Impact on Emissions and Efficiency")
     
-    merged_data = pd.DataFrame(data_rows)
-else:
-    st.error(f"Required columns not found. Looking for {x_col}, {y_col}, and {gdp_col}")
-    st.stop()
-
-if merged_data.empty:
-    st.error("No valid data found after merging datasets.")
-    st.stop()
-
-# Create productivity quartiles
-merged_data['Productivity_Quartile'] = pd.qcut(merged_data['Labor_Productivity'], 4, labels=['Q1 (Lowest Productivity)', 'Q2', 'Q3', 'Q4 (Highest Productivity)'])
-
-# Main dashboard
-st.header("Investment in Rail Infrastructure vs CO2 Emissions")
-st.subheader("Analysis by Labor Productivity Quartiles")
-
-# Create visualization
-fig, ax = plt.subplots(figsize=(12, 8))
-
-# Define color palette
-palette = sns.color_palette("viridis", 4)
-
-# Plot points colored by productivity quartile
-for i, quartile in enumerate(merged_data['Productivity_Quartile'].cat.categories):
-    quartile_data = merged_data[merged_data['Productivity_Quartile'] == quartile]
-    sns.scatterplot(
-        data=quartile_data,
-        x='Rail_Investment',
-        y='CO2_Emissions',
-        label=quartile,
-        color=palette[i],
-        s=100,
-        ax=ax
-    )
+    # Visualization 1: Rail Investment vs CO2 Emissions Trend (Slope)
+    st.subheader("1. Rail Investment Impact on CO2 Emissions Trend")
     
-    # Add country labels
-    for _, row in quartile_data.iterrows():
-        ax.annotate(
-            row['Country'],
-            (row['Rail_Investment'], row['CO2_Emissions']),
-            fontsize=8,
-            alpha=0.7,
-            xytext=(5, 5),
-            textcoords='offset points'
-        )
+    # Get GDP data for creating quartiles
+    gdp_col = "Gross domestic product (GDP) (Total): US dollars/capita_pred2000"
+    x_col = 'Investment (Rail): US dollars per person_pred2000'
+    y_col = 'CO2 emissions in transport sector: Tonnes of CO2 per person_slope'  # Using slope instead of pred2000
     
-    # Add trendline for each quartile if there are enough points
-    if len(quartile_data) >= 3:  # Need at least 3 points for a meaningful trendline
-        sns.regplot(
-            data=quartile_data,
-            x='Rail_Investment',
-            y='CO2_Emissions',
-            scatter=False,
-            color=palette[i],
-            line_kws={'linestyle': '--', 'linewidth': 2, 'alpha': 0.7},
-            ax=ax
-        )
-
-# Add overall trendline
-sns.regplot(
-    data=merged_data,
-    x='Rail_Investment',
-    y='CO2_Emissions',
-    scatter=False,
-    color='red',
-    line_kws={'linestyle': '-', 'linewidth': 2},
-    ax=ax
-)
-
-# Customize the plot
-ax.set_xlabel('Investment in Rail (US Dollars per Person)', fontsize=12)
-ax.set_ylabel('CO2 Emissions in Transport Sector (Tonnes per Person)', fontsize=12)
-ax.set_title('Relationship Between Rail Investment and CO2 Emissions by Labor Productivity', fontsize=14)
-
-# Add correlation text
-correlation = merged_data['Rail_Investment'].corr(merged_data['CO2_Emissions'])
-ax.text(
-    0.05, 0.95,
-    f'Overall Correlation: {correlation:.2f}',
-    transform=ax.transAxes,
-    fontsize=12,
-    bbox=dict(facecolor='white', alpha=0.7)
-)
-
-# Show the legend
-ax.legend(title='Labor Productivity Quartile', fontsize=10, title_fontsize=12)
-
-# Add grid for better readability
-ax.grid(True, alpha=0.3)
-
-# Show the plot
-st.pyplot(fig)
+    if gdp_col in econ_wide.columns and x_col in transport_wide.columns and y_col in transport_wide.columns:
+        # Merge transport and economic data
+        data_rows = []
+        common_countries = set(transport_wide.index) & set(econ_wide.index)
+        
+        for country in common_countries:
+            if (pd.notna(transport_wide.loc[country, x_col]) and 
+                pd.notna(transport_wide.loc[country, y_col]) and 
+                pd.notna(econ_wide.loc[country, gdp_col])):
+                data_rows.append({
+                    'Country': country,
+                    'Rail_Investment': transport_wide.loc[country, x_col],
+                    'CO2_Emissions_Trend': transport_wide.loc[country, y_col],
+                    'GDP_per_capita': econ_wide.loc[country, gdp_col]
+                })
+        
+        merged_data = pd.DataFrame(data_rows)
+        
+        if not merged_data.empty:
+            # Create GDP quartiles
+            merged_data['GDP_Quartile'] = pd.qcut(
+                merged_data['GDP_per_capita'], 
+                4, 
+                labels=['Q1 (Lowest GDP)', 'Q2', 'Q3', 'Q4 (Highest GDP)']
+            )
+            
+            # Create visualization
+            fig, ax = plt.subplots(figsize=(12, 8))
+            
+            # Define color palette
+            palette = sns.color_palette("viridis", 4)
+            
+            # Plot points colored by GDP quartile
+            for i, quartile in enumerate(merged_data['GDP_Quartile'].cat.categories):
+                quartile_data = merged_data[merged_data['GDP_Quartile'] == quartile]
+                
+                # Plot the scatter points
+                sns.scatterplot(
+                    data=quartile_data,
+                    x='Rail_Investment',
+                    y='CO2_Emissions_Trend',
+                    label=quartile,
+                    color=palette[i],
+                    s=100,
+                    ax=ax
+                )
+                
+                # Add country labels
+                for _, row in quartile_data.iterrows():
+                    ax.annotate(
+                        row['Country'],
+                        (row['Rail_Investment'], row['CO2_Emissions_Trend']),
+                        fontsize=8,
+                        alpha=0.7,
+                        xytext=(5, 5),
+                        textcoords='offset points'
+                    )
+                
+                # Add horizontal line showing average CO2 emissions trend for this quartile
+                avg_co2_trend = quartile_data['CO2_Emissions_Trend'].mean()
+                ax.axhline(
+                    y=avg_co2_trend,
+                    color=palette[i],
+                    linestyle='--',
+                    alpha=0.5,
+                    xmin=0,
+                    xmax=quartile_data['Rail_Investment'].max() / merged_data['Rail_Investment'].max()
+                )
+                
+                # Add label for the average line
+                ax.text(
+                    merged_data['Rail_Investment'].max() * 0.95,
+                    avg_co2_trend,
+                    f"{quartile}: {avg_co2_trend:.4f}",
+                    color=palette[i],
+                    va='center',
+                    ha='right',
+                    fontsize=8,
+                    bbox=dict(facecolor='white', alpha=0.7)
+                )
+                
+                # Add trendline for each quartile if there are enough points
+                if len(quartile_data) >= 3:  # Need at least 3 points for a meaningful trendline
+                    sns.regplot(
+                        data=quartile_data,
+                        x='Rail_Investment',
+                        y='CO2_Emissions_Trend',
+                        scatter=False,
+                        color=palette[i],
+                        line_kws={'linestyle': '-', 'linewidth': 1.5, 'alpha': 0.7},
+                        ax=ax
+                    )
+            
+            # Add a horizontal line at y=0 to show the threshold between increasing/decreasing emissions
+            ax.axhline(y=0, color='red', linestyle='-', alpha=0.3)
+            ax.text(
+                merged_data['Rail_Investment'].min(),
+                0.01,
+                "Increasing emissions →",
+                color='darkred',
+                va='bottom',
+                fontsize=8
+            )
+            ax.text(
+                merged_data['Rail_Investment'].min(),
+                -0.01,
+                "Decreasing emissions →",
+                color='darkgreen',
+                va='top',
+                fontsize=8
+            )
+            
+            # Customize the plot
+            ax.set_xlabel('Investment in Rail (US Dollars per Person)', fontsize=12)
+            ax.set_ylabel('CO2 Emissions Trend (Tonnes per Person per Year)', fontsize=12)
+            ax.set_title('Rail Investment vs. CO2 Emissions Trend by GDP Per Capita', fontsize=14)
+            
+            # Calculate correlation for all data
+            correlation = merged_data['Rail_Investment'].corr(merged_data['CO2_Emissions_Trend'])
+            ax.text(
+                0.05, 0.05,
+                f'Overall Correlation: {correlation:.2f}',
+                transform=ax.transAxes,
+                fontsize=10,
+                bbox=dict(facecolor='white', alpha=0.7)
+            )
+            
+            # Show the legend
+            ax.legend(title='GDP Per Capita Quartile', fontsize=10, title_fontsize=12)
+            
+            # Add grid for better readability
+            ax.grid(True, alpha=0.3)
+            
+            # Show the plot
+            st.pyplot(fig)
+            
+            # Add explanation
+            st.markdown("""
+            **Hypothesis: Countries with greater investment in rail infrastructure tend to have better (decreasing) 
+            CO2 emissions trends, even when accounting for differences in economic development.**
+            
+            **Interpretation:**
+            - Points above the red line (y=0) show countries with increasing CO2 emissions over time
+            - Points below the red line show countries with decreasing CO2 emissions over time
+            - Countries are grouped by GDP per capita quartiles to control for level of industrialization
+            - Horizontal dashed lines show the average emissions trend for each GDP quartile
+            - Countries in the bottom right (high rail investment, negative emissions trend) are performing best
+            - The correlation coefficient measures the strength of the relationship between rail investment and emissions trend
+            
+            This visualization helps identify whether higher rail investment correlates with better emissions management
+            while controlling for economic development level.
+            """)
+            
+            # Display the data table
+            with st.expander("Show Data Table"):
+                st.dataframe(merged_data[['Country', 'Rail_Investment', 'CO2_Emissions_Trend', 'GDP_per_capita', 'GDP_Quartile']])
+        else:
+            st.warning("Insufficient data to create the visualization after merging datasets.")
+    else:
+        st.error("Required columns not found for Rail Investment vs CO2 Emissions Trend visualization.")
+    
+    # Visualization 2: Rail Network Trend vs Traffic Efficiency Trend
+    st.subheader("2. Rail Network Growth vs Transit Cost Efficiency")
+    
+    # Define the columns
+    x_col = 'Transport infrastructure: Percentage of rail network_slope'
+    y_col = 'National traffic: Seat-kilometres per 1 000 US dollars_slope'
+    
+    if x_col in transport_wide.columns and y_col in transport_wide.columns:
+        # Get data for countries with both metrics
+        data_rows = []
+        
+        for country in transport_wide.index:
+            if pd.notna(transport_wide.loc[country, x_col]) and pd.notna(transport_wide.loc[country, y_col]):
+                # Check if GDP data is available for this country
+                gdp_value = econ_wide.loc[country, gdp_col] if country in econ_wide.index and pd.notna(econ_wide.loc[country, gdp_col]) else np.nan
+                
+                data_rows.append({
+                    'Country': country,
+                    'Rail_Network_Trend': transport_wide.loc[country, x_col],
+                    'Transit_Efficiency_Trend': transport_wide.loc[country, y_col],
+                    'GDP_per_capita': gdp_value
+                })
+        
+        efficiency_data = pd.DataFrame(data_rows)
+        
+        if not efficiency_data.empty:
+            # Create GDP quartiles where GDP data is available
+            valid_gdp = efficiency_data['GDP_per_capita'].notna()
+            if valid_gdp.sum() >= 4:  # Need at least 4 points for quartiles
+                efficiency_data.loc[valid_gdp, 'GDP_Quartile'] = pd.qcut(
+                    efficiency_data.loc[valid_gdp, 'GDP_per_capita'], 
+                    4, 
+                    labels=['Q1 (Lowest GDP)', 'Q2', 'Q3', 'Q4 (Highest GDP)']
+                )
+            else:
+                efficiency_data['GDP_Quartile'] = 'Unknown'
+            
+            # Create visualization
+            fig, ax = plt.subplots(figsize=(12, 8))
+            
+            # Define color palette
+            palette = sns.color_palette("viridis", 4)
+            
+            # Plot points colored by GDP quartile if available
+            if 'Unknown' not in efficiency_data['GDP_Quartile'].unique():
+                for i, quartile in enumerate(sorted(efficiency_data['GDP_Quartile'].unique())):
+                    quartile_data = efficiency_data[efficiency_data['GDP_Quartile'] == quartile]
+                    
+                    # Plot the scatter points
+                    sns.scatterplot(
+                        data=quartile_data,
+                        x='Rail_Network_Trend',
+                        y='Transit_Efficiency_Trend',
+                        label=quartile,
+                        color=palette[i],
+                        s=100,
+                        ax=ax
+                    )
+                    
+                    # Add country labels
+                    for _, row in quartile_data.iterrows():
+                        ax.annotate(
+                            row['Country'],
+                            (row['Rail_Network_Trend'], row['Transit_Efficiency_Trend']),
+                            fontsize=8,
+                            alpha=0.7,
+                            xytext=(5, 5),
+                            textcoords='offset points'
+                        )
+                    
+                    # Add trendline for each quartile if there are enough points
+                    if len(quartile_data) >= 3:
+                        sns.regplot(
+                            data=quartile_data,
+                            x='Rail_Network_Trend',
+                            y='Transit_Efficiency_Trend',
+                            scatter=False,
+                            color=palette[i],
+                            line_kws={'linestyle': '-', 'linewidth': 1.5, 'alpha': 0.7},
+                            ax=ax
+                        )
+            else:
+                # Plot all points in one color if no GDP quartiles
+                sns.scatterplot(
+                    data=efficiency_data,
+                    x='Rail_Network_Trend',
+                    y='Transit_Efficiency_Trend',
+                    s=100,
+                    ax=ax
+                )
+                
+                # Add country labels
+                for _, row in efficiency_data.iterrows():
+                    ax.annotate(
+                        row['Country'],
+                        (row['Rail_Network_Trend'], row['Transit_Efficiency_Trend']),
+                        fontsize=8,
+                        alpha=0.7,
+                        xytext=(5, 5),
+                        textcoords='offset points'
+                    )
+            
+            # Add quadrant lines and labels
+            ax.axhline(y=0, color='gray', linestyle='--', alpha=0.5)
+            ax.axvline(x=0, color='gray', linestyle='--', alpha=0.5)
+            
+            # Add quadrant labels
+            ax.text(
+                efficiency_data['Rail_Network_Trend'].max() * 0.7,
+                efficiency_data['Transit_Efficiency_Trend'].max() * 0.7,
+                "Growing rail network\nImproving efficiency",
+                ha='center',
+                bbox=dict(facecolor='green', alpha=0.1)
+            )
+            
+            ax.text(
+                efficiency_data['Rail_Network_Trend'].min() * 0.7,
+                efficiency_data['Transit_Efficiency_Trend'].min() * 0.7,
+                "Shrinking rail network\nDeclining efficiency",
+                ha='center',
+                bbox=dict(facecolor='red', alpha=0.1)
+            )
+            
+            # Customize the plot
+            ax.set_xlabel('Trend in Rail Network Percentage (Annual Change)', fontsize=12)
+            ax.set_ylabel('Trend in Transit Cost Efficiency (Annual Change)', fontsize=12)
+            ax.set_title('Relationship Between Rail Network Growth and Transit Cost Efficiency', fontsize=14)
+            
+            # Calculate correlation
+            correlation = efficiency_data['Rail_Network_Trend'].corr(efficiency_data['Transit_Efficiency_Trend'])
+            ax.text(
+                0.05, 0.95,
+                f'Correlation: {correlation:.2f}',
+                transform=ax.transAxes,
+                fontsize=10,
+                bbox=dict(facecolor='white', alpha=0.7)
+            )
+            
+            # Show the legend if GDP quartiles are available
+            if 'Unknown' not in efficiency_data['GDP_Quartile'].unique():
+                ax.legend(title='GDP Per Capita Quartile', fontsize=10, title_fontsize=12)
+            
+            # Add grid for better readability
+            ax.grid(True, alpha=0.3)
+            
+            # Show the plot
+            st.pyplot(fig)
+            
+            # Add explanation
+            st.markdown("""
+            **Hypothesis: Countries that are expanding their rail networks tend to see improvements in public 
+            transit cost efficiency.**
+            
+            **Interpretation:**
+            - Points in the upper right quadrant show countries with both growing rail networks and improving transit efficiency
+            - Points in the lower left quadrant show countries with shrinking rail networks and declining efficiency
+            - The correlation coefficient measures the strength of the relationship between rail network growth and efficiency trends
+            - Positive correlation supports the hypothesis that expanding rail networks improves transit cost efficiency
+            
+            This visualization helps identify whether countries that invest in expanding their rail networks 
+            achieve better cost efficiency in their national transit systems.
+            """)
+            
+            # Display the data table
+            with st.expander("Show Data Table"):
+                st.dataframe(efficiency_data[['Country', 'Rail_Network_Trend', 'Transit_Efficiency_Trend', 'GDP_per_capita']])
+        else:
+            st.warning("Insufficient data to create the Rail Network vs Transit Efficiency visualization.")
+    else:
+        st.error("Required columns not found for Rail Network vs Transit Efficiency visualization.")
